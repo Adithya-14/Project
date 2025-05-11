@@ -7,5 +7,4 @@ def reverse(n):
         n //= 10
         print(digit, end="")
     print() # Print a newline after reversing the number
-result = reverse(n)
-print(result)
+reverse(n)
