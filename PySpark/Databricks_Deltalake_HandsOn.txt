@@ -1,0 +1,136 @@
+# Databricks Delta Lake Hands-On — Unity Catalog Compatible Version
+
+# ==============================
+# 🛠️ Lab 1: Create Delta Table and Explore Versioning
+# ==============================
+
+# Step 1: Create a small DataFrame
+data = [
+    (1, "Alice", 1000),
+    (2, "Bob", 1500),
+    (3, "Charlie", 2000)
+]
+columns = ["id", "name", "salary"]
+
+df = spark.createDataFrame(data, schema=columns)
+df.show()
+
+# Step 2: Save DataFrame as Managed Delta Table
+df.write.format("delta").mode("overwrite").saveAsTable("default.employee_delta")
+
+# Step 3: Check Table History
+spark.sql("DESCRIBE HISTORY default.employee_delta").show(truncate=False)
+
+
+# ==============================
+# 🛠️ Lab 2: Update, Delete, Merge Operations
+# ==============================
+
+# Step 1: Update Operation
+spark.sql("""
+    UPDATE default.employee_delta
+    SET salary = 1800
+    WHERE name = 'Bob'
+""")
+
+# Step 2: Delete Operation
+spark.sql("""
+    DELETE FROM default.employee_delta
+    WHERE name = 'Charlie'
+""")
+
+# Step 3: Prepare New DataFrame for Merge
+new_data = [
+    (2, "Bob", 1900),   # Existing employee
+    (4, "David", 2200)  # New employee
+]
+
+new_df = spark.createDataFrame(new_data, schema=columns)
+new_df.write.format("delta").mode("overwrite").saveAsTable("default.new_employee")
+
+# Step 4: Merge Operation
+spark.sql("""
+    MERGE INTO default.employee_delta AS target
+    USING default.new_employee AS source
+    ON target.id = source.id
+    WHEN MATCHED THEN
+      UPDATE SET target.salary = source.salary
+    WHEN NOT MATCHED THEN
+      INSERT (id, name, salary) VALUES (source.id, source.name, source.salary)
+""")
+
+# Step 5: Query the Final Table
+spark.sql("SELECT * FROM default.employee_delta").show()
+
+
+# ==============================
+# 🛠️ Lab 3: Delta Time Travel (Recover Old Versions)
+# ==============================
+
+# Step 1: Query Older Version
+spark.sql("""
+    SELECT * FROM default.employee_delta VERSION AS OF 0
+""").show()
+
+# Step 2: Query by Timestamp (replace with your specific timestamp)
+spark.sql("""
+    SELECT * FROM default.employee_delta TIMESTAMP AS OF '2025-04-28T10:30:00.000Z'
+""").show()
+
+
+# ==============================
+# 🛠️ Lab 4: Optimization (OPTIMIZE, VACUUM)
+# ==============================
+
+# Step 1: Run OPTIMIZE
+spark.sql("OPTIMIZE default.employee_delta")
+
+# Step 2: Z-Order by salary
+spark.sql("""
+    OPTIMIZE default.employee_delta
+    ZORDER BY (salary)
+""")
+
+# Step 3: VACUUM to clean old files
+spark.sql("VACUUM default.employee_delta RETAIN 168 HOURS")
+
+
+# ==============================
+# 🏛 Mini Capstone Project: Retail Sales Medallion Architecture
+# ==============================
+
+# Step 1: Bronze Layer — Simulate Loading Raw Data
+data_sales = [
+    (1, '2025-04-01', 'C001', 'P01', 2, 100, 'USA'),
+    (2, '2025-04-01', 'C002', 'P03', 1, 250, 'UK'),
+    (3, '2025-04-02', 'C003', 'P02', 5, 50, 'USA'),
+    (4, '2025-04-02', 'C004', 'P04', 3, 150, 'India')
+]
+columns_sales = ["OrderID", "OrderDate", "CustomerID", "ProductID", "Quantity", "UnitPrice", "Country"]
+
+df_sales = spark.createDataFrame(data_sales, schema=columns_sales)
+df_sales.write.format("delta").mode("overwrite").saveAsTable("default.bronze_sales")
+
+# Step 2: Silver Layer — Cleanse Data
+bronze_df = spark.table("default.bronze_sales")
+silver_df = bronze_df.filter("Quantity > 0 AND UnitPrice > 0").dropna()
+silver_df.write.format("delta").mode("overwrite").saveAsTable("default.silver_sales")
+
+# Step 3: Gold Layer — Aggregate Sales
+gold_df = silver_df.groupBy("OrderDate").agg(
+    sum("Quantity").alias("TotalUnitsSold"),
+    sum(expr("Quantity * UnitPrice")).alias("TotalRevenue")
+)
+gold_df.write.format("delta").mode("overwrite").saveAsTable("default.gold_sales")
+
+# Step 4: Optimize Silver and Gold Tables
+spark.sql("OPTIMIZE default.silver_sales")
+spark.sql("OPTIMIZE default.gold_sales")
+
+# Step 5: Optional Time Travel Example
+spark.sql("SELECT * FROM default.silver_sales VERSION AS OF 0").show()
+
+# Step 6: Optional — Vacuum to save storage
+spark.sql("VACUUM default.bronze_sales RETAIN 168 HOURS")
+spark.sql("VACUUM default.silver_sales RETAIN 168 HOURS")
+spark.sql("VACUUM default.gold_sales RETAIN 168 HOURS")

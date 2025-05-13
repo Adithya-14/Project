@@ -1,0 +1,16 @@
+Clean & transform
+* drop unwanted records
+* type-cast columns
+* trim/standardise strings
+* filter negative / zero quantities
+* recompute total_price
+* standardise country & status fields
+
+
+Validate – record counts, basic stats, business rules (e.g. total_price == qty × unit_price)
+
+Write the cleansed DataFrame back to storage in an efficient format (Parquet/Delta)
+
+Ingest the CSV from cloud storage into a DataFrame (schema inference vs. manual)
+
+Explore the issues (nulls, duplicates, bad types, outliers) via df.show(), df.describe()
