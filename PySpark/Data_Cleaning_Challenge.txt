@@ -1,0 +1,83 @@
+PySpark E-commerce Data Cleaning Challenge**
+
+---
+
+### Step 1 — Ingest
+- [ ] Load the raw CSV.
+- [ ] Handle *embedded commas and newlines*.
+- [ ] Define *explicit schema* treating items_json as a string field.
+- [ ] Use spark.read.option("multiline","true").csv and *structured schema*.
+
+---
+
+### Step 2 — Detect Issues
+- [ ] Create a *Data Quality Dashboard* that shows:
+  - [ ] Rows with *invalid or missing dates*.
+  - [ ] Rows with *malformed JSON* in items_json.
+  - [ ] Presence of *mixed currencies*.
+  - [ ] *Duplicate (order_id + customer_id)* combinations.
+- [ ] Techniques: isNull, regexp_extract, approx_count_distinct, profiling summaries.
+
+---
+
+### Step 3 — Clean Core Columns
+- [ ] *Standardize*:
+  - [ ] Emails → lowercase and trimmed.
+  - [ ] Order/payment statuses → capitalized.
+  - [ ] Currency → uppercase.
+  - [ ] Country → title-case.
+- [ ] Remove $ symbol from shipping_cost and cast to *float*.
+- [ ] Parse *multi-format dates* correctly.
+- [ ] Drop records with:
+  - [ ] Impossible quantities (e.g., negative or null).
+  - [ ] Bad JSON in items_json.
+- [ ] Techniques: trim, lower/upper, to_date, when/otherwise, UDFs if needed.
+
+---
+
+### Step 4 — Parse & Explode Items
+- [ ] Safely *parse items_json* into an array of structs.
+- [ ] *Explode* each order into one row per SKU.
+- [ ] Handle any *parsing errors* gracefully.
+- [ ] Use: from_json, schema_of_json, explode, error handling with try-except or fallback values.
+
+---
+
+### Step 5 — Transform Prices
+- [ ] *Currency Conversion*:
+  - [ ] Convert EUR prices → USD using a *fixed FX rate* (e.g., 1 EUR = 1.1 USD).
+- [ ] *Recalculate*:
+  - [ ] line_total_usd = unit_price_usd × qty
+  - [ ] order_total_usd = Sum of line_total_usd across items in order.
+- [ ] *Validate*:
+  - [ ] Flag any orders where recalculated total differs from original by more than 1 cent.
+- [ ] Use: Column math, groupBy + agg, window functions.
+
+---
+
+### Step 6 — Advanced Enrichment
+- [ ] *Customer tagging*:
+  - [ ] Tag customers as *first-time* vs *returning* based on order history.
+- [ ] *Rolling Metrics*:
+  - [ ] Calculate *rolling 7-day GMV (Gross Merchandise Value)* per country.
+- [ ] Use: Window specs, rowsBetween, date_add.
+
+---
+
+### Step 7 — Output Tables
+- [ ] Write *two Delta tables*:
+  - [ ] *Bronze Table*:
+    - [ ] Cleaned order-level dataset (with full items_json still intact).
+  - [ ] *Silver Table*:
+    - [ ] Exploded, enriched item-level dataset.
+    - [ ] *Partition* by order_date and country.
+- [ ] Use: write.format("delta").partitionBy(...).
+
+---
+
+### Step 8 — Validation Notebook (Bonus)
+- [ ] *Assertions* to confirm:
+  - [ ] No duplicate order lines exist.
+  - [ ] All totals reconcile correctly.
+  - [ ] All final currency fields are *only USD*.
+- [ ] Structure validation like unit-tests: assert, expect, PySpark SQL queries.
