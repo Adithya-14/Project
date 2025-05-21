@@ -1,0 +1,1179 @@
+Pandas and NumPy Interview Questions and Answers
+NumPy (Numerical Python)
+General Questions
+
+1. What is NumPy and why is it important in Python for data science?
+NumPy (Numerical Python) is a fundamental library for scientific computing in Python. It provides a high-performance multidimensional array object (ndarray), and tools for working with these arrays. Its importance stems from:   
+
+Performance: NumPy operations are implemented in C, making them significantly faster than standard Python lists for numerical computations.
+Efficiency: ndarray objects use less memory than Python lists for storing numerical data.
+Foundation: Many other data science libraries (like Pandas, SciPy, Scikit-learn) are built on top of NumPy arrays.
+Mathematical Operations: It offers a vast collection of high-level mathematical functions to operate on these arrays.
+
+2. Explain the core difference between a Python list and a NumPy array.
+
+Data Type: NumPy arrays are homogeneous (all elements must be of the same data type), while Python lists can be heterogeneous (elements can be of different data types).
+Performance: NumPy arrays are significantly faster for numerical operations, especially with large datasets, due to optimized C implementations and contiguous memory allocation. Python lists are slower for numerical tasks.
+Memory Usage: NumPy arrays are more memory-efficient.
+Functionality: NumPy arrays support element-wise operations and a rich set of mathematical functions directly (vectorization), which lists do not. Lists require loops for element-wise operations.
+
+3. What is an ndarray in NumPy? Describe its key attributes.
+An ndarray (N-dimensional array) is the core object in NumPy. It's a grid of values, all of the same type, indexed by a tuple of non-negative integers.
+
+Key attributes:
+
+ndim: The number of dimensions (axes) of the array.
+shape: A tuple of integers indicating the size of the array in each dimension.
+size: The total number of elements in the array.   
+dtype: The data type of the elements in the array (e.g., int32, float64).
+itemsize: The size in bytes of each element of the array.
+data: The buffer containing the actual elements of the array.
+
+4. How do you create NumPy arrays? Provide different methods.
+
+From Python lists/tuples: np.array([1, 2, 3]), np.array([(1,2),(3,4)])
+np.zeros() / np.ones(): Creates arrays filled with zeros or ones.
+np.zeros((2, 3))
+np.ones(5)
+np.empty(): Creates an array without initializing its entries (faster).
+np.empty((2, 2))
+np.arange(): Creates an array with a range of values (similar to range()).
+np.arange(10)
+np.linspace(): Creates an array with a specified number of evenly spaced values over an interval.
+np.linspace(0, 1, 5)
+np.random module: For arrays with random values.
+np.random.rand(3, 2) (uniform distribution)
+np.random.randn(3, 2) (standard normal distribution)
+np.full(): Creates an array of a specified shape filled with a constant value.
+np.full((2, 2), 7)
+
+5. Explain array indexing and slicing in NumPy with examples.
+NumPy arrays support powerful indexing and slicing, similar to Python lists but extended to multiple dimensions.
+
+Indexing (single element): arr[row_index, col_index]
+arr = np.array([[1,2,3],[4,5,6]])
+arr[0, 1] # Output: 2
+Slicing (ranges): arr[start:end:step, start:end:step]
+arr = np.array([1, 2, 3, 4, 5, 6])
+arr[1:4] # Output: array([2, 3, 4])
+arr[:3] # Output: array([1, 2, 3])
+arr[::2] # Output: array([1, 3, 5])
+Multi-dimensional slicing:
+arr2d = np.array([[1,2,3],[4,5,6],[7,8,9]])
+arr2d[0:2, 1:3] # Output: array([[2, 3], [5, 6]]) (rows 0-1, cols 1-2)
+Integer Array Indexing (Fancy Indexing): Using arrays of integers to select arbitrary subsets of data.
+arr = np.arange(10)
+arr[[0, 2, 5]] # Output: array([0, 2, 5])
+Boolean Array Indexing: Using a boolean array of the same shape to select elements where the boolean array is True.
+arr = np.array([10, 20, 30, 40, 50])
+arr[arr > 30] # Output: array([40, 50])
+
+6. What is broadcasting in NumPy? Give an example.
+Broadcasting is a powerful mechanism in NumPy that allows arithmetic operations between arrays with different shapes to be performed without explicitly creating multiple copies of the smaller array. It efficiently applies a smaller array across a larger array.
+
+Rules for Broadcasting:
+
+If the arrays do not have the same number of dimensions, the shape of the smaller array is padded with ones on its left side.
+If the shape of the two arrays does not match in any dimension, the array with shape equal to 1 in that dimension is stretched to match the other shape.   
+If in any dimension the sizes are unequal and neither is 1, an error is raised.
+Example:
+
+Python
+
+import numpy as np
+
+arr = np.array([[1, 2, 3],
+                [4, 5, 6]]) # Shape (2, 3)
+
+scalar = 10 # Scalar is broadcast across all elements
+result_scalar = arr + scalar
+# Output:
+# [[11 12 13]
+#  [14 15 16]]
+
+vector = np.array([10, 20, 30]) # Shape (3,)
+result_vector = arr + vector # Vector is broadcast row-wise
+# Output:
+# [[11 22 33]
+#  [14 25 36]]
+
+7. Differentiate between copy() and view (shallow copy) in NumPy.
+
+View (Shallow Copy): When you slice a NumPy array, the resulting array is a view of the original data. This means that if you modify the view, the original array will also be modified, and vice-versa. Views share the same memory.
+arr = np.array([1, 2, 3])
+view_arr = arr[1:]
+view_arr[0] = 99
+print(arr) # Output: [ 1 99 3]
+Copy (Deep Copy): The copy() method creates a new array with its own separate copy of the data. Modifications to the new array will not affect the original, and vice-versa.
+arr = np.array([1, 2, 3])
+copy_arr = arr.copy()
+copy_arr[0] = 99
+print(arr) # Output: [1 2 3]
+
+8. Explain the difference between np.dot() and np.multiply() / * operator.
+
+np.multiply() / * operator (Element-wise multiplication): Performs element-by-element multiplication of arrays. Requires arrays to have compatible shapes for broadcasting.
+a = np.array([1, 2])
+b = np.array([3, 4])
+result = a * b # Output: array([3, 8])
+np.dot() (Matrix multiplication / Dot product):
+For 1-D arrays, it computes the inner product (scalar product).
+For 2-D arrays, it performs matrix multiplication.
+For higher-dimensional arrays, it performs a sum product over the last axis of a and the second-to-last axis of b.
+a = np.array([[1, 2], [3, 4]])
+b = np.array([[5, 6], [7, 8]])
+result = np.dot(a, b)
+Output:
+[[15 + 27, 16 + 28],
+[35 + 47, 36 + 48]]
+= [[19, 22], [43, 50]]
+
+
+9. How do you reshape a NumPy array? What's the significance of -1 in reshape()?
+The reshape() method changes the shape of an array without changing its data.
+
+arr = np.arange(12)
+reshaped = arr.reshape(3, 4) # Output: array([[ 0, 1, 2, 3], [ 4, 5, 6, 7], [ 8, 9, 10, 11]])
+The significance of -1 in reshape(): You can specify -1 for one of the dimensions, and NumPy will automatically calculate the size of that dimension based on the total number of elements and the other specified dimensions. This is convenient when you don't know the exact size of one dimension, or if you want to ensure the total number of elements remains consistent.
+
+arr = np.arange(12)
+reshaped = arr.reshape(3, -1) # Output: array([[ 0, 1, 2, 3], [ 4, 5, 6, 7], [ 8, 9, 10, 11]]) (NumPy calculates 4)
+reshaped = arr.reshape(-1, 2) # Output: array([[ 0, 1], [ 2, 3], [ 4, 5], [ 6, 7], [ 8, 9], [10, 11]]) (NumPy calculates 6)
+
+
+10. What are universal functions (ufuncs) in NumPy? Give examples.
+Universal functions (ufuncs) are NumPy functions that operate element-wise on ndarrays. They are implemented in compiled C code, making them very fast and efficient. They also support broadcasting.
+
+Examples:
+
+Arithmetic: np.add, np.subtract, np.multiply, np.divide, np.power, np.mod
+Trigonometric: np.sin, np.cos, np.tan, np.arcsin
+Exponential/Logarithmic: np.exp, np.log, np.log10
+Comparison: np.equal, np.not_equal, np.greater, np.less
+Others: np.sqrt, np.abs, np.ceil, np.floor, np.round
+
+
+11. How do you handle missing values (NaN) in NumPy arrays?
+NumPy itself doesn't have a specific missing value type like Pandas' NaN for all dtypes, but np.nan (Not a Number) is typically used for floating-point arrays. For integer arrays, there's no direct NaN representation.
+
+Checking for NaN: np.isnan(arr) returns a boolean array.
+Replacing NaN:
+arr[np.isnan(arr)] = 0
+Using np.nan_to_num(arr)
+Filtering out NaN: arr[~np.isnan(arr)]
+Skipping NaN in aggregations: NumPy provides nan versions of aggregation functions (e.g., np.nansum, np.nanmean, np.nanmax).
+
+
+12. Explain the concept of axis in NumPy operations.
+The axis parameter in many NumPy functions (like sum(), mean(), max(), sort()) refers to the dimension along which the operation is performed.
+
+axis=0 (rows): The operation is performed column-wise, reducing the rows. It typically collapses the rows into a single row.
+axis=1 (columns): The operation is performed row-wise, reducing the columns. It typically collapses the columns into a single column.
+No axis specified: The operation is performed on the entire flattened array.
+Example:
+
+Python
+
+arr = np.array([[1, 2, 3],
+                [4, 5, 6]]) # Shape (2, 3)
+
+print(np.sum(arr))        # Output: 21 (sum of all elements)
+print(np.sum(arr, axis=0)) # Output: [5 7 9] (sum down the columns)
+print(np.sum(arr, axis=1)) # Output: [ 6 15] (sum across the rows)
+
+
+13. What is the difference between np.append(), np.concatenate(), and np.stack()?
+
+np.append(arr, values, axis=None): Appends values to the end of an array. If axis is not specified, both arrays are flattened before appending. If axis is specified, dimensions must match except for the appending axis. Often less efficient than concatenate for multiple appends.
+arr1 = np.array([1, 2])
+arr2 = np.array([3, 4])
+np.append(arr1, arr2) # Output: array([1, 2, 3, 4])
+np.concatenate((arr1, arr2, ...), axis=0): Joins a sequence of arrays along an existing axis. All input arrays must have the same shape, except in the dimension corresponding to axis.
+arr1 = np.array([[1, 2]])
+arr2 = np.array([[3, 4]])
+np.concatenate((arr1, arr2), axis=0) # Output: array([[1, 2], [3, 4]])
+np.stack((arr1, arr2, ...), axis=0): Joins a sequence of arrays along a new axis. All input arrays must have the same shape. This increases the dimension of the result.
+arr1 = np.array([1, 2])
+arr2 = np.array([3, 4])
+np.stack((arr1, arr2)) # Output: array([[1, 2], [3, 4]]) (new axis 0, shape (2,2))
+np.stack((arr1, arr2), axis=1) # Output: array([[1, 3], [2, 4]]) (new axis 1, shape (2,2))
+
+
+14. How can you save and load NumPy arrays?
+
+np.save('filename.npy', array): Saves a single array to a binary .npy file.
+np.load('filename.npy'): Loads an array from a .npy file.
+np.savetxt('filename.txt', array, delimiter=','): Saves an array to a plain text file.
+np.loadtxt('filename.txt', delimiter=','): Loads data from a plain text file.
+np.savez('archive.npz', array1=arr1, array2=arr2): Saves multiple arrays into a single uncompressed .npz archive.
+np.savez_compressed('archive_compressed.npz', array1=arr1): Saves multiple arrays into a single compressed .npz archive.
+
+
+15. What is the use of np.where()?
+np.where(condition, x, y) returns elements chosen from x or y depending on condition. It's a vectorized way of performing conditional assignments, similar to an if-else statement.
+
+arr = np.array([1, 2, 3, 4, 5])
+result = np.where(arr > 3, 100, arr) # Output: array([ 1, 2, 3, 100, 100])
+If x and y are omitted, np.where(condition) returns the indices where the condition is true.
+indices = np.where(arr % 2 == 0) # Output: (array([1, 3]),) (indices of even numbers)
+
+
+NumPy Scenario-Based Coding Questions
+1. Create a 1D NumPy array with values ranging from 0 to 9.
+
+Python
+
+import numpy as np
+arr = np.arange(10)
+print(arr)
+
+
+2. Create a 3x3 NumPy array filled with True values.
+
+Python
+
+import numpy as np
+arr_bool = np.full((3, 3), True, dtype=bool)
+# Or
+# arr_bool = np.ones((3, 3), dtype=bool)
+print(arr_bool)
+
+
+3. Extract all odd numbers from a given NumPy array.
+
+Python
+
+import numpy as np
+arr = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+odd_numbers = arr[arr % 2 != 0]
+print(odd_numbers)
+
+
+4. Replace all odd numbers in a NumPy array with -1.
+
+Python
+
+import numpy as np
+arr = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+arr[arr % 2 != 0] = -1
+print(arr)
+
+
+5. Convert a 1D array to a 2D array with 2 rows.
+
+Python
+
+import numpy as np
+arr = np.arange(10) # [0, 1, ..., 9]
+arr_2d = arr.reshape(2, -1) # -1 infers the column count
+print(arr_2d)
+
+
+6. Stack two 1D arrays horizontally.
+
+Python
+
+import numpy as np
+arr1 = np.array([1, 2, 3])
+arr2 = np.array([4, 5, 6])
+stacked_arr = np.hstack((arr1, arr2))
+# Or
+# stacked_arr = np.concatenate((arr1, arr2))
+print(stacked_arr)
+
+
+7. Stack two 1D arrays vertically.
+
+Python
+
+import numpy as np
+arr1 = np.array([1, 2, 3])
+arr2 = np.array([4, 5, 6])
+stacked_arr = np.vstack((arr1, arr2))
+# Or
+# stacked_arr = np.concatenate((arr1[np.newaxis, :], arr2[np.newaxis, :]), axis=0)
+print(stacked_arr)
+
+
+8. Find the common items between two NumPy arrays.
+
+Python
+
+import numpy as np
+arr1 = np.array([1, 2, 3, 2, 3, 4, 3, 4, 5, 6])
+arr2 = np.array([7, 2, 10, 2, 7, 4, 9, 4, 9, 8])
+common_items = np.intersect1d(arr1, arr2)
+print(common_items)
+
+
+9. Remove from one array those items that are present in another array.
+
+Python
+
+import numpy as np
+arr1 = np.array([1, 2, 3, 4, 5])
+arr2 = np.array([1, 3, 5])
+result = np.setdiff1d(arr1, arr2)
+print(result)
+
+
+10. Get all items between 5 and 10 from a NumPy array.
+
+Python
+
+import numpy as np
+arr = np.array([1, 5, 7, 9, 10, 13, 15])
+# Using boolean indexing
+result = arr[(arr >= 5) & (arr <= 10)]
+print(result)
+
+
+11. Convert a NumPy array to a list.
+
+Python
+
+import numpy as np
+arr = np.array([1, 2, 3])
+list_from_array = arr.tolist()
+print(list_from_array)
+print(type(list_from_array))
+
+
+12. Reverse a NumPy array.
+
+Python
+
+import numpy as np
+arr = np.array([1, 2, 3, 4, 5])
+reversed_arr = arr[::-1]
+print(reversed_arr)
+
+
+13. Create a 2D array and swap its rows.
+
+Python
+
+import numpy as np
+arr_2d = np.array([[1, 2, 3],
+                   [4, 5, 6],
+                   [7, 8, 9]])
+# Swap row 0 and row 2
+swapped_arr = arr_2d[[2, 1, 0], :]
+print(swapped_arr)
+
+
+14. Compute the mean, median, and standard deviation of a NumPy array.
+
+Python
+
+import numpy as np
+arr = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+mean_val = np.mean(arr)
+median_val = np.median(arr)
+std_dev_val = np.std(arr)
+print(f"Mean: {mean_val}, Median: {median_val}, Standard Deviation: {std_dev_val}")
+
+
+15. Normalize a 2D NumPy array (Min-Max Normalization).
+
+Python
+
+import numpy as np
+arr_2d = np.array([[1, 2, 3],
+                   [4, 5, 6]])
+min_val = arr_2d.min()
+max_val = arr_2d.max()
+normalized_arr = (arr_2d - min_val) / (max_val - min_val)
+print(normalized_arr)
+
+
+16. Given a 2D array, select the first row and last column.
+
+Python
+
+import numpy as np
+arr_2d = np.array([[1, 2, 3],
+                   [4, 5, 6],
+                   [7, 8, 9]])
+first_row = arr_2d[0, :]
+last_column = arr_2d[:, -1]
+print(f"First Row: {first_row}")
+print(f"Last Column: {last_column}")
+
+
+17. Replace all values greater than 5 with 5, and all values less than 0 with 0.
+
+Python
+
+import numpy as np
+arr = np.array([-3, 1, 6, 8, 0, -1, 4])
+arr[arr > 5] = 5
+arr[arr < 0] = 0
+print(arr)
+# Or using np.clip()
+# arr = np.array([-3, 1, 6, 8, 0, -1, 4])
+# clipped_arr = np.clip(arr, 0, 5)
+# print(clipped_arr)
+
+
+18. Create a NumPy array with 5 random integers between 1 and 10.
+
+Python
+
+import numpy as np
+random_integers = np.random.randint(1, 11, 5) # 11 is exclusive
+print(random_integers)
+
+
+19. Calculate the dot product of two NumPy arrays (matrices).
+
+Python
+
+import numpy as np
+matrix1 = np.array([[1, 2], [3, 4]])
+matrix2 = np.array([[5, 6], [7, 8]])
+dot_product = np.dot(matrix1, matrix2)
+print(dot_product)
+
+
+20. Add a border (pad with zeros) around an existing NumPy array.
+
+Python
+
+import numpy as np
+arr = np.array([[1, 2], [3, 4]])
+padded_arr = np.pad(arr, pad_width=1, mode='constant', constant_values=0)
+print(padded_arr)
+
+
+21. Find the unique elements and their counts in a NumPy array.
+
+Python
+
+import numpy as np
+arr = np.array([1, 2, 1, 3, 2, 4, 1, 5])
+unique_elements, counts = np.unique(arr, return_counts=True)
+print(f"Unique Elements: {unique_elements}")
+print(f"Counts: {counts}")
+
+
+22. Given a 2D array, sort it by the values in the second column.
+
+Python
+
+import numpy as np
+arr_2d = np.array([[1, 5],
+                   [4, 2],
+                   [7, 3]])
+# Sort by the second column (index 1)
+sorted_arr = arr_2d[arr_2d[:, 1].argsort()]
+print(sorted_arr)
+
+
+23. Calculate the cumulative sum of a NumPy array.
+
+Python
+
+import numpy as np
+arr = np.array([1, 2, 3, 4, 5])
+cumulative_sum = np.cumsum(arr)
+print(cumulative_sum)
+
+
+24. Replace specific values in a NumPy array.
+
+Python
+
+import numpy as np
+arr = np.array([10, 20, 30, 40, 50])
+# Replace 20 with 200
+arr[arr == 20] = 200
+print(arr)
+
+
+25. Create a diagonal matrix from a 1D NumPy array.
+
+Python
+
+import numpy as np
+arr = np.array([1, 2, 3])
+diag_matrix = np.diag(arr)
+print(diag_matrix)
+
+
+26. Calculate the sum of all elements in a 2D NumPy array.
+
+Python
+
+import numpy as np
+arr_2d = np.array([[1, 2], [3, 4]])
+total_sum = np.sum(arr_2d)
+print(total_sum)
+
+
+27. Get the indices of the maximum value in a NumPy array.
+
+Python
+
+import numpy as np
+arr = np.array([10, 50, 20, 80, 30])
+max_index = np.argmax(arr)
+print(f"Index of Max Value: {max_index}")
+
+
+28. Convert a NumPy array to a string.
+
+Python
+
+import numpy as np
+arr = np.array([1, 2, 3])
+arr_string = np.array2string(arr)
+print(arr_string)
+print(type(arr_string))
+
+
+29. Flatten a 2D NumPy array into a 1D array.
+
+Python
+
+import numpy as np
+arr_2d = np.array([[1, 2, 3],
+                   [4, 5, 6]])
+flattened_arr = arr_2d.flatten()
+# Or
+# flattened_arr = arr_2d.ravel()
+print(flattened_arr)
+
+
+30. Create a 5x5 matrix with random values and find the minimum and maximum values.
+
+Python
+
+import numpy as np
+random_matrix = np.random.rand(5, 5)
+min_val = random_matrix.min()
+max_val = random_matrix.max()
+print(f"Min Value: {min_val}, Max Value: {max_val}")
+Pandas (Python Data Analysis Library)
+
+
+General Questions
+1. What is Pandas and what are its primary data structures?
+Pandas is a powerful, open-source Python library used for data manipulation and analysis. It provides fast, flexible, and expressive data structures designed to make working with "relational" or "labeled" data both easy and intuitive.   
+
+Its primary data structures are:
+
+Series: A one-dimensional labeled array capable of holding any data type (integers, strings, floats, Python objects, etc.). It has an associated array of data labels, called its index.   
+DataFrame: A two-dimensional labeled data structure with columns of potentially different types. You can think of it like a spreadsheet or a SQL table, or a dictionary of Series objects. It has both a row index and a column index.
+
+
+2. Explain the difference between a Pandas Series and a DataFrame.
+
+Series:
+1-dimensional.
+Essentially a single column of data.
+Has an index for labels.
+Can be thought of as a specialized dictionary where keys are index labels and values are data.
+DataFrame:
+2-dimensional.
+A table-like structure with rows and columns.
+Each column in a DataFrame is a Series.
+Has both a row index and column names (labels).
+Can be thought of as a dictionary of Series objects sharing the same index.
+
+
+3. How do you create a Pandas DataFrame? Provide multiple ways.
+
+From a dictionary of lists/NumPy arrays:
+Python
+
+import pandas as pd
+data = {'col1': [1, 2, 3], 'col2': ['A', 'B', 'C']}
+df = pd.DataFrame(data)
+From a list of dictionaries:
+Python
+
+data_list = [{'col1': 1, 'col2': 'A'}, {'col1': 2, 'col2': 'B'}]
+df = pd.DataFrame(data_list)
+From a NumPy array:
+Python
+
+import numpy as np
+arr = np.random.rand(3, 2)
+df = pd.DataFrame(arr, columns=['colA', 'colB'])
+From a CSV file:
+Python
+
+df = pd.read_csv('file.csv')
+From an Excel file:
+Python
+
+df = pd.read_excel('file.xlsx')
+
+
+4. Explain indexing and selecting data in Pandas (loc, iloc, []).
+Pandas provides powerful and flexible ways to select data using labels (loc) or integer positions (iloc).
+
+[] (Bracket notation):
+
+For a DataFrame:
+Single column: df['column_name'] (returns a Series)
+Multiple columns: df[['col1', 'col2']] (returns a DataFrame)
+Row slicing: df[0:3] (selects rows by integer position, not label)
+For a Series: s[index_label] or s[integer_position]
+.loc (Label-based indexing): Primarily by label, but can also use boolean arrays.
+
+df.loc[row_label, column_label]
+df.loc['row_A', 'col_X']
+df.loc[['row_A', 'row_B'], ['col_X', 'col_Y']]
+df.loc[:, 'col_X'] (selects all rows, 'col_X' column)
+df.loc[df['Age'] > 30, 'Name'] (boolean indexing)
+.iloc (Integer-location based indexing): Primarily by integer position.
+
+df.iloc[row_integer_pos, col_integer_pos]
+df.iloc[0, 1] (selects value at row 0, column 1)
+df.iloc[0:2, 0:3] (slices rows 0 to 1, columns 0 to 2)
+df.iloc[:, 0] (selects all rows, first column)
+
+
+5. How do you handle missing data (NaN) in Pandas?
+Pandas uses NaN (Not a Number) to represent missing or null values.
+
+df.isnull() / df.isna(): Returns a boolean DataFrame/Series indicating where values are missing.
+df.notnull() / df.notna(): Returns a boolean DataFrame/Series indicating where values are not missing.
+df.dropna(axis=0, how='any', thresh=None, subset=None, inplace=False): Removes rows or columns containing missing values.
+axis: 0 for rows (default), 1 for columns.
+how: 'any' (drop if any NaN), 'all' (drop if all NaN).
+thresh: Require that many non-NA values.
+subset: Columns to consider for missing values.
+inplace: Modify DataFrame in place.
+df.fillna(value=None, method=None, axis=None, inplace=False, limit=None): Fills missing values.
+value: A scalar value or dictionary to fill with.
+method: 'ffill' (forward fill), 'bfill' (backward fill).
+axis: 0 for rows, 1 for columns.
+limit: Maximum number of consecutive NaNs to fill.
+
+
+6. Explain groupby() in Pandas with an example.
+The groupby() method is used for grouping data based on one or more columns and then applying an aggregation function (like sum(), mean(), count(), min(), max()) to the grouped data. This process is commonly known as "split-apply-combine."
+
+Example:
+
+Python
+
+import pandas as pd
+data = {'Category': ['A', 'B', 'A', 'B', 'A'],
+        'Value': [10, 20, 15, 25, 12],
+        'Count': [1, 1, 2, 1, 1]}
+df = pd.DataFrame(data)
+
+# Group by 'Category' and calculate the sum of 'Value'
+grouped_df = df.groupby('Category')['Value'].sum()
+print(grouped_df)
+# Output:
+# Category
+# A    37
+# B    45
+# Name: Value, dtype: int64
+
+# Group by 'Category' and calculate multiple aggregations
+multi_agg = df.groupby('Category').agg(
+    Total_Value=('Value', 'sum'),
+    Average_Value=('Value', 'mean'),
+    Num_Entries=('Count', 'count')
+)
+print(multi_agg)
+# Output:
+#          Total_Value  Average_Value  Num_Entries
+# Category
+# A               37      12.333333            3
+# B               45      22.500000            2
+
+
+7. What is the difference between merge(), join(), and concat() in Pandas?
+These functions are used to combine DataFrames, but in different ways:
+
+pd.merge(df1, df2, on=None, how='inner', ...):
+
+Used to combine DataFrames based on common columns or indices (like SQL JOINs).
+Requires specifying a common key (on parameter) or relying on overlapping column names.
+how: 'inner' (default), 'left', 'right', 'outer'.
+Primarily for combining data from different sources into a wider DataFrame.
+df1.join(df2, on=None, how='left', ...):
+
+Default behavior is to join DataFrames on their indices.
+Can also join on a column of one DataFrame with the index of another.
+Often a convenience method for merge when joining on indices.
+pd.concat([df1, df2, ...], axis=0, ignore_index=False, ...):
+
+Used to concatenate DataFrames along a particular axis (rows or columns).
+Combines DataFrames that have the same columns (for axis=0) or the same index (for axis=1).
+axis: 0 for stacking rows (default), 1 for stacking columns.
+ignore_index=True can reset the resulting index.
+Useful for appending new rows or columns when schemas are compatible.
+
+
+8. How do you handle duplicate values in Pandas?
+
+df.duplicated(subset=None, keep='first'): Returns a boolean Series indicating which rows are duplicates.
+subset: Column(s) to consider for identifying duplicates.
+keep: 'first' (mark all but first as True), 'last' (mark all but last as True), False (mark all duplicates as True).
+df.drop_duplicates(subset=None, keep='first', inplace=False): Removes duplicate rows.
+Parameters are similar to duplicated().
+
+
+9. Explain apply(), map(), and applymap() in Pandas.
+These methods are used for applying functions to data in different contexts:
+
+Series.map(func):
+
+Used for element-wise mapping on a Series.
+Can take a dictionary (for mapping specific values), a Series (for aligning values), or a function (for applying to each element).
+Best for element-wise transformations on a single Series.
+DataFrame.apply(func, axis=0):
+
+Used to apply a function along an axis of a DataFrame (row-wise or column-wise).
+axis=0 (default): Applies function to each column (Series).
+axis=1: Applies function to each row (Series).
+More flexible than map for DataFrames, as it can operate on rows/columns as a whole.
+DataFrame.applymap(func): (Deprecated since Pandas 2.0.0, use DataFrame.map() or DataFrame.apply(axis=1).apply(lambda x: x.map(func)) for similar functionality)
+
+Used for element-wise application of a function to every element of a DataFrame.
+Equivalent to applying map to every column of a DataFrame.
+Often slower than vectorized NumPy operations.
+
+
+10. What are Categorical Data types in Pandas and why are they useful?
+A Categorical data type is a Pandas data type that corresponds to categorical variables in statistics. It's an efficient way to store and work with string columns that have a limited number of unique values (e.g., 'Gender', 'City', 'Product Type').
+
+Why they are useful:
+
+Memory Efficiency: For columns with many repeated string values, storing them as categorical types can significantly reduce memory usage. Pandas stores an array of integer codes and a separate array of unique categories.
+Performance: Operations (like groupby(), sorting, comparisons) can be faster on categorical data because they operate on integer codes rather than full strings.
+Statistical Modeling: Many statistical models and machine learning algorithms work better or require categorical input.
+
+
+11. How do you convert data types in Pandas?
+
+df['column'].astype(dtype): Converts a Series to a specified data type.
+df['Age'] = df['Age'].astype(int)
+df['Price'] = df['Price'].astype(float)
+df['Category'] = df['Category'].astype('category')
+pd.to_numeric(series, errors='coerce'): Converts arguments to a numeric type. errors='coerce' will turn non-convertible values into NaN.
+pd.to_datetime(series, errors='coerce'): Converts argument to datetime.
+pd.to_timedelta(series, errors='coerce'): Converts argument to timedelta.
+
+
+12. Explain multi-indexing (Hierarchical Indexing) in Pandas.
+Multi-indexing allows you to have multiple levels of indexes on an axis (rows or columns). This provides a way to work with higher dimensional data in a 2D DataFrame or 1D Series.
+
+Use cases:
+
+Handling time series data with multiple frequencies (e.g., daily sales within monthly reports).
+Representing data that naturally has a hierarchical structure (e.g., sales by Region, then City).
+More complex data selection and aggregation.
+Example:
+
+Python
+
+import pandas as pd
+arrays = [['A', 'A', 'B', 'B'], ['one', 'two', 'one', 'two']]
+multi_index = pd.MultiIndex.from_arrays(arrays, names=('first', 'second'))
+s = pd.Series([1, 2, 3, 4], index=multi_index)
+print(s)
+# Output:
+# first  second
+# A      one       1
+#        two       2
+# B      one       3
+#        two       4
+# dtype: int64
+
+# Selecting data with multi-index
+print(s.loc['A', 'two']) # Output: 2
+
+
+13. What is the pivot_table() function used for?
+The pivot_table() function is used to create a "pivot" table from a DataFrame, similar to pivot tables in spreadsheet software. It's a powerful tool for summarizing and reorganizing data.
+
+Key parameters:
+
+data: The DataFrame to pivot.
+values: The column(s) to aggregate.
+index: Column(s) to use for the new DataFrame's row index.
+columns: Column(s) to use for the new DataFrame's column index.
+aggfunc: Function to use for aggregation (e.g., 'mean', 'sum', 'count', or a custom function).
+fill_value: Value to replace missing values (NaNs) in the pivot table.
+Example:
+
+Python
+
+import pandas as pd
+df = pd.DataFrame({'Date': ['2023-01-01', '2023-01-01', '2023-01-02', '2023-01-02'],
+                   'Region': ['East', 'West', 'East', 'West'],
+                   'Sales': [100, 150, 120, 180]})
+df['Date'] = pd.to_datetime(df['Date'])
+
+pivot_df = pd.pivot_table(df, values='Sales', index='Date', columns='Region', aggfunc='sum')
+print(pivot_df)
+# Output:
+# Region        East  West
+# Date
+# 2023-01-01   100   150
+# 2023-01-02   120   180
+
+
+14. How do you perform vectorized operations in Pandas? Why are they preferred?
+Vectorized operations in Pandas involve applying operations to entire Series or DataFrames at once, rather than iterating through elements using explicit Python loops. Pandas (and NumPy, which it's built upon) internally handles these operations in optimized C code.
+
+Examples:
+
+df['col1'] + df['col2'] (element-wise addition)
+df['col'] * 2 (scalar multiplication)
+df['col'].fillna(0)
+df[df['Age'] > 30]
+Why preferred?
+
+Performance: Significantly faster due to C implementations.
+Readability: Code is often more concise and easier to understand.
+Efficiency: Avoids the overhead of Python loops.
+
+
+15. What are the common methods for reading and writing data in Pandas?
+Pandas supports a wide range of data formats:
+
+Reading:
+pd.read_csv('file.csv')
+pd.read_excel('file.xlsx')
+pd.read_json('file.json')
+pd.read_html('url')
+pd.read_sql_table('table_name', con=engine) (from databases)
+pd.read_pickle('file.pkl')
+Writing:
+df.to_csv('output.csv', index=False) (index=False to not write DataFrame index)
+df.to_excel('output.xlsx', sheet_name='Sheet1', index=False)
+df.to_json('output.json', orient='records')
+df.to_sql('table_name', con=engine, if_exists='append', index=False)
+df.to_pickle('output.pkl')
+
+
+Pandas Scenario-Based Coding Questions
+1. Create a Pandas Series from a list of numbers.
+
+Python
+
+import pandas as pd
+data = [10, 20, 30, 40, 50]
+s = pd.Series(data)
+print(s)
+
+2. Create a DataFrame from a dictionary of lists.
+
+Python
+
+import pandas as pd
+data = {
+    'Name': ['Alice', 'Bob', 'Charlie'],
+    'Age': [25, 30, 35],
+    'City': ['New York', 'London', 'Paris']
+}
+df = pd.DataFrame(data)
+print(df)
+
+
+3. Read a CSV file into a Pandas DataFrame. (Assume 'data.csv' exists).
+
+Python
+
+import pandas as pd
+# Create a dummy CSV file for demonstration
+# with open('data.csv', 'w') as f:
+#     f.write('id,value\n1,100\n2,200\n3,300\n')
+
+try:
+    df = pd.read_csv('data.csv')
+    print(df)
+except FileNotFoundError:
+    print("data.csv not found. Please create it or provide a valid path.")
+
+
+4. Select the 'Age' column from a DataFrame.
+
+Python
+
+import pandas as pd
+data = {'Name': ['Alice', 'Bob'], 'Age': [25, 30]}
+df = pd.DataFrame(data)
+age_series = df['Age']
+print(age_series)
+
+
+5. Select rows where 'Age' is greater than 28.
+
+Python
+
+import pandas as pd
+data = {'Name': ['Alice', 'Bob', 'Charlie'], 'Age': [25, 30, 35]}
+df = pd.DataFrame(data)
+filtered_df = df[df['Age'] > 28]
+print(filtered_df)
+
+
+6. Add a new column 'Status' to a DataFrame.
+
+Python
+
+import pandas as pd
+df = pd.DataFrame({'Name': ['Alice', 'Bob'], 'Age': [25, 30]})
+df['Status'] = ['Active', 'Inactive']
+print(df)
+
+
+7. Calculate the mean of the 'Age' column.
+
+Python
+
+import pandas as pd
+df = pd.DataFrame({'Name': ['Alice', 'Bob', 'Charlie'], 'Age': [25, 30, 35]})
+mean_age = df['Age'].mean()
+print(f"Mean Age: {mean_age}")
+
+
+8. Handle missing values: Fill all NaN values in a DataFrame with 0.
+
+Python
+
+import pandas as pd
+import numpy as np
+df = pd.DataFrame({'A': [1, 2, np.nan], 'B': [4, np.nan, 6]})
+df_filled = df.fillna(0)
+print(df_filled)
+
+
+9. Drop rows with any missing values.
+
+Python
+
+import pandas as pd
+import numpy as np
+df = pd.DataFrame({'A': [1, 2, np.nan], 'B': [4, np.nan, 6]})
+df_dropped = df.dropna()
+print(df_dropped)
+
+
+10. Group a DataFrame by 'Category' and find the sum of 'Sales'.
+
+Python
+
+import pandas as pd
+data = {'Category': ['A', 'B', 'A', 'C', 'B'], 'Sales': [100, 150, 120, 200, 180]}
+df = pd.DataFrame(data)
+grouped_sales = df.groupby('Category')['Sales'].sum()
+print(grouped_sales)
+
+
+11. Sort a DataFrame by 'Age' in descending order.
+
+Python
+
+import pandas as pd
+df = pd.DataFrame({'Name': ['Alice', 'Bob', 'Charlie'], 'Age': [25, 30, 35]})
+sorted_df = df.sort_values(by='Age', ascending=False)
+print(sorted_df)
+
+
+12. Merge two DataFrames based on a common column 'ID' (inner join).
+
+Python
+
+import pandas as pd
+df1 = pd.DataFrame({'ID': [1, 2, 3], 'Name': ['Alice', 'Bob', 'Charlie']})
+df2 = pd.DataFrame({'ID': [2, 3, 4], 'Score': [85, 90, 75]})
+merged_df = pd.merge(df1, df2, on='ID', how='inner')
+print(merged_df)
+
+
+13. Find the unique values in the 'City' column.
+
+Python
+
+import pandas as pd
+df = pd.DataFrame({'Name': ['Alice', 'Bob', 'Charlie'], 'City': ['NY', 'London', 'NY']})
+unique_cities = df['City'].unique()
+print(unique_cities)
+
+
+14. Count the occurrences of each unique value in the 'City' column.
+
+Python
+
+import pandas as pd
+df = pd.DataFrame({'Name': ['Alice', 'Bob', 'Charlie', 'David'], 'City': ['NY', 'London', 'NY', 'London']})
+city_counts = df['City'].value_counts()
+print(city_counts)
+
+
+15. Convert the 'Date' column to datetime objects.
+
+Python
+
+import pandas as pd
+df = pd.DataFrame({'Date': ['2023-01-01', '2023-01-02', '2023-01-03'], 'Value': [1, 2, 3]})
+df['Date'] = pd.to_datetime(df['Date'])
+print(df.info())
+print(df['Date'])
+
+
+16. Rename a column from 'old_name' to 'new_name'.
+
+Python
+
+import pandas as pd
+df = pd.DataFrame({'old_name': [1, 2], 'B': [3, 4]})
+df_renamed = df.rename(columns={'old_name': 'new_name'})
+print(df_renamed)
+
+
+17. Apply a function to a column: Double the 'Value' column.
+
+Python
+
+import pandas as pd
+df = pd.DataFrame({'A': [1, 2, 3], 'Value': [10, 20, 30]})
+df['Value_Doubled'] = df['Value'].apply(lambda x: x * 2)
+# Or vectorized: df['Value_Doubled'] = df['Value'] * 2
+print(df)
+
+
+18. Reset the index of a DataFrame.
+
+Python
+
+import pandas as pd
+df = pd.DataFrame({'A': [1, 2, 3]}, index=['a', 'b', 'c'])
+df_reset = df.reset_index(drop=True) # drop=True prevents adding old index as a column
+print(df_reset)
+
+
+19. Create a pivot table: Sum of 'Sales' by 'Region' and 'Product'.
+
+Python
+
+import pandas as pd
+df = pd.DataFrame({'Region': ['East', 'West', 'East', 'West'],
+                   'Product': ['A', 'A', 'B', 'B'],
+                   'Sales': [100, 150, 120, 180]})
+pivot_table = pd.pivot_table(df, values='Sales', index='Region', columns='Product', aggfunc='sum')
+print(pivot_table)
+
+
+20. Check for duplicate rows in a DataFrame.
+
+Python
+
+import pandas as pd
+df = pd.DataFrame({'A': [1, 2, 1], 'B': ['x', 'y', 'x']})
+duplicates = df.duplicated()
+print(duplicates)
+
+
+21. Drop duplicate rows based on all columns.
+
+Python
+
+import pandas as pd
+df = pd.DataFrame({'A': [1, 2, 1], 'B': ['x', 'y', 'x']})
+df_no_duplicates = df.drop_duplicates()
+print(df_no_duplicates)
+
+
+22. Select rows using iloc (e.g., first two rows, all columns).
+
+Python
+
+import pandas as pd
+df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
+selected_rows = df.iloc[0:2, :]
+print(selected_rows)
+
+
+23. Select specific columns using loc (e.g., 'Name' and 'City').
+
+Python
+
+import pandas as pd
+df = pd.DataFrame({'Name': ['Alice', 'Bob'], 'Age': [25, 30], 'City': ['NY', 'London']})
+selected_cols = df.loc[:, ['Name', 'City']]
+print(selected_cols)
+
+
+24. Change the data type of a column to categorical.
+
+Python
+
+import pandas as pd
+df = pd.DataFrame({'Fruit': ['Apple', 'Banana', 'Apple', 'Orange'], 'Count': [1, 2, 3, 4]})
+df['Fruit'] = df['Fruit'].astype('category')
+print(df['Fruit'].dtype)
+
+
+25. Create a new column based on a condition of existing columns.
+
+Python
+
+import pandas as pd
+df = pd.DataFrame({'Score': [70, 85, 95, 60]})
+df['Grade'] = ['Pass' if s >= 75 else 'Fail' for s in df['Score']]
+# Or using np.where for better performance:
+# df['Grade'] = np.where(df['Score'] >= 75, 'Pass', 'Fail')
+print(df)
+
+
+26. Calculate the correlation matrix for numerical columns.
+
+Python
+
+import pandas as pd
+df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6], 'C': [7, 8, 9]})
+correlation_matrix = df.corr()
+print(correlation_matrix)
+
+
+27. Iterate over rows of a DataFrame (discouraged for large datasets).
+
+Python
+
+import pandas as pd
+df = pd.DataFrame({'Name': ['Alice', 'Bob'], 'Age': [25, 30]})
+for index, row in df.iterrows():
+    print(f"Index: {index}, Name: {row['Name']}, Age: {row['Age']}")
+
+
+28. Get basic descriptive statistics for a DataFrame.
+
+Python
+
+import pandas as pd
+df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
+description = df.describe()
+print(description)
+
+
+29. Save a DataFrame to a CSV file without the index.
+
+Python
+
+import pandas as pd
+df = pd.DataFrame({'A': [1, 2], 'B': [3, 4]})
+df.to_csv('output_no_index.csv', index=False)
+print("DataFrame saved to output_no_index.csv")
+
+
+30. Perform a value replacement in a column using replace().
+
+Python
+
+import pandas as pd
+df = pd.DataFrame({'Fruit': ['Apple', 'Banana', 'Orange'], 'Count': [1, 2, 3]})
+df['Fruit'] = df['Fruit'].replace('Apple', 'Red Apple')
+print(df)

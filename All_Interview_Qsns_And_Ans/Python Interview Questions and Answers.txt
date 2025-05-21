@@ -1,0 +1,2725 @@
+Python Interview Questions and Answers
+Strings
+
+1. How do you reverse a string in Python without using slicing?
+
+You can reverse a string using a for loop, a while loop, or the reversed() function with str.join().
+
+Example:
+
+Python
+
+# Using a for loop
+def reverse_string_for(s):
+    reversed_s = ""
+    for char in s:
+        reversed_s = char + reversed_s
+    return reversed_s
+
+# Using a while loop
+def reverse_string_while(s):
+    reversed_s = ""
+    i = len(s) - 1
+    while i >= 0:
+        reversed_s += s[i]
+        i -= 1
+    return reversed_s
+
+# Using reversed() and join()
+def reverse_string_reversed(s):
+    return "".join(reversed(s))
+
+s = "hello"
+print(f"Original: {s}")
+print(f"Reversed (for loop): {reverse_string_for(s)}")
+print(f"Reversed (while loop): {reverse_string_while(s)}")
+print(f"Reversed (reversed()): {reverse_string_reversed(s)}")
+
+
+2. What’s the difference between is and == when comparing strings?
+
+== (Equality operator): Compares the values of the objects. It checks if the content of the strings is the same.
+is (Identity operator): Compares the identity of the objects. It checks if two variables refer to the exact same object in memory.
+For strings, Python has an optimization called "string interning" for short, common strings. This means identical short strings might refer to the same memory location, making is return True. However, this is an implementation detail and should not be relied upon for general string comparisons. Always use == to compare string values.
+
+Example:
+
+Python
+
+s1 = "hello"
+s2 = "hello"
+s3 = "Hello"
+s4 = "h" + "ello"
+s5 = input("Enter 'hello': ") # User inputs 'hello'
+
+print(f"s1 == s2: {s1 == s2}")  # True (values are the same)
+print(f"s1 is s2: {s1 is s2}")  # True (due to interning for short strings)
+
+print(f"s1 == s3: {s1 == s3}")  # False (case difference)
+print(f"s1 is s3: {s1 is s3}")  # False (different objects)
+
+print(f"s1 == s4: {s1 == s4}")  # True (values are the same)
+print(f"s1 is s4: {s1 is s4}")  # True (intering often applies to compiled literals)
+
+print(f"s1 == s5: {s1 == s5}")  # True (if user inputs 'hello')
+print(f"s1 is s5: {s1 is s5}")  # False (input strings are rarely interned with existing literals)
+
+
+3. How can you check if a string is a palindrome?
+
+A string is a palindrome if it reads the same forwards and backwards. You can check this by comparing the string with its reversed version.
+
+Example:
+
+Python
+
+def is_palindrome(s):
+    # Convert to lowercase and remove spaces/punctuation for robust check
+    s = "".join(filter(str.isalnum, s)).lower()
+    return s == s[::-1]
+
+print(f"'madam' is palindrome: {is_palindrome('madam')}")
+print(f"'A man, a plan, a canal: Panama!' is palindrome: {is_palindrome('A man, a plan, a canal: Panama!')}")
+print(f"'python' is palindrome: {is_palindrome('python')}")
+
+
+4. Explain how str.translate() and str.maketrans() work.
+
+These methods are used together for efficient character-to-character mapping or deletion from a string.
+
+str.maketrans(x, y, z): A static method that creates a translation table (a mapping of Unicode ordinals to Unicode ordinals, strings, or None).
+x: A string specifying characters to be replaced.
+y: A string specifying the characters to replace with. x and y must have the same length.
+z (optional): A string specifying characters to be deleted.
+str.translate(table): Applies the translation table created by maketrans() to the string.
+Example:
+
+Python
+
+text = "Hello World! 123"
+
+# Case 1: Character replacement
+table1 = str.maketrans("HlW", "Mpr") # Replace 'H'->'M', 'l'->'p', 'W'->'r'
+translated_text1 = text.translate(table1)
+print(f"Translated (replacement): {translated_text1}")
+
+# Case 2: Character deletion
+table2 = str.maketrans("", "", "o!123") # Delete 'o', '!', '1', '2', '3'
+translated_text2 = text.translate(table2)
+print(f"Translated (deletion): {translated_text2}")
+
+# Case 3: Replacement and deletion
+table3 = str.maketrans("eo", "xz", "lrd") # Replace 'e'->'x', 'o'->'z', delete 'l', 'r', 'd'
+translated_text3 = text.translate(table3)
+print(f"Translated (replace & delete): {translated_text3}")
+
+
+5. How do you count the frequency of characters in a string?
+
+You can use a dictionary to store character counts, or use collections.Counter.
+
+Example:
+
+Python
+
+from collections import Counter
+
+def count_char_frequency_dict(s):
+    freq = {}
+    for char in s:
+        freq[char] = freq.get(char, 0) + 1
+    return freq
+
+def count_char_frequency_counter(s):
+    return Counter(s)
+
+s = "programming"
+print(f"Character frequency (dict): {count_char_frequency_dict(s)}")
+print(f"Character frequency (Counter): {count_char_frequency_counter(s)}")
+
+
+6. Write a program to remove all duplicates from a string.
+
+You can use a set to keep track of seen characters and build a new string. Preserving order is often desired.
+
+Example:
+
+Python
+
+def remove_duplicates(s):
+    seen = set()
+    result = []
+    for char in s:
+        if char not in seen:
+            result.append(char)
+            seen.add(char)
+    return "".join(result)
+
+s = "programming"
+print(f"String with duplicates removed: {remove_duplicates(s)}") # Output: programin
+
+
+7. How do you capitalize the first letter of each word in a string?
+
+Use the str.title() method or split the string, capitalize each word, and then join them.
+
+Example:
+
+Python
+
+s = "hello world from python"
+capitalized_s = s.title()
+print(f"Capitalized string: {capitalized_s}")
+
+# Manual approach
+def capitalize_each_word(s):
+    words = s.split()
+    capitalized_words = [word.capitalize() for word in words]
+    return " ".join(capitalized_words)
+
+print(f"Capitalized string (manual): {capitalize_each_word(s)}")
+
+
+8. What's the difference between strip(), lstrip(), and rstrip()?
+
+These methods remove leading and/or trailing whitespace or specified characters from a string.
+
+strip([chars]): Removes leading and trailing whitespace characters by default. If chars is provided, it removes any combination of characters specified in chars from both ends.
+lstrip([chars]): Removes leading (left-side) whitespace characters by default. If chars is provided, it removes any combination of characters specified in chars from the left end.
+rstrip([chars]): Removes trailing (right-side) whitespace characters by default. If chars is provided, it removes any combination of characters specified in chars from the right end.
+Example:
+
+Python
+
+s = "   hello world   "
+print(f"Original: '{s}'")
+print(f"strip(): '{s.strip()}'")
+print(f"lstrip(): '{s.lstrip()}'")
+print(f"rstrip(): '{s.rstrip()}'")
+
+s2 = "---hello---"
+print(f"Original: '{s2}'")
+print(f"strip('-'): '{s2.strip('-')}'")
+print(f"lstrip('-'): '{s2.lstrip('-')}'")
+print(f"rstrip('-'): '{s2.rstrip('-')}'")
+
+
+9. How do you find the longest word in a sentence?
+
+Split the sentence into words, then iterate or use max() with a key to find the longest word.
+
+Example:
+
+Python
+
+def find_longest_word(sentence):
+    words = sentence.split()
+    if not words:
+        return None
+    longest_word = ""
+    for word in words:
+        if len(word) > len(longest_word):
+            longest_word = word
+    return longest_word
+
+# Using max()
+def find_longest_word_max(sentence):
+    words = sentence.split()
+    if not words:
+        return None
+    return max(words, key=len)
+
+sentence = "This is a sentence with some very long words"
+print(f"Longest word: {find_longest_word(sentence)}")
+print(f"Longest word (using max): {find_longest_word_max(sentence)}")
+
+
+10. Write a regex to validate an email address using the re module.
+
+Email validation with regex can be complex and depends on strictness. Here's a commonly used, reasonably robust regex.
+
+Example:
+
+Python
+
+import re
+
+def validate_email(email):
+    # A common regex for email validation (can be more complex for edge cases)
+    # Allows alphanumeric, dots, underscores, percents, plus, hyphens before @
+    # Allows alphanumeric, hyphens after @, followed by dot and 2-6 letter domain
+    regex = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$"
+    return re.match(regex, email) is not None
+
+print(f"test@example.com is valid: {validate_email('test@example.com')}")
+print(f"user.name+tag@sub.domain.co.in is valid: {validate_email('user.name+tag@sub.domain.co.in')}")
+print(f"invalid-email.com is valid: {validate_email('invalid-email.com')}")
+print(f"@domain.com is valid: {validate_email('@domain.com')}")
+
+
+11. How do you convert a string to a list of words?
+
+Use the str.split() method. By default, it splits by any whitespace and handles multiple spaces between words.
+
+Example:
+
+Python
+
+sentence = "Python is  a powerful language"
+words = sentence.split()
+print(f"List of words: {words}")
+
+# Split by a specific delimiter
+csv_string = "apple,banana,orange"
+fruits = csv_string.split(',')
+print(f"List of fruits: {fruits}")
+
+
+12. How do you find the first non-repeating character in a string?
+
+You can use a dictionary to store character counts or collections.Counter, then iterate through the string to find the first character with a count of 1.
+
+Example:
+
+Python
+
+from collections import Counter
+
+def find_first_non_repeating(s):
+    char_counts = Counter(s)
+    for char in s:
+        if char_counts[char] == 1:
+            return char
+    return None # No non-repeating character found
+
+print(f"First non-repeating in 'swiss': {find_first_non_repeating('swiss')}") # Output: w
+print(f"First non-repeating in 'aabbcc': {find_first_non_repeating('aabbcc')}") # Output: None
+print(f"First non-repeating in 'teeter': {find_first_non_repeating('teeter')}") # Output: r
+
+
+13. Write a function to check if two strings are anagrams.
+
+Two strings are anagrams if they contain the same characters with the same frequencies, disregarding case and whitespace (often). The simplest way is to sort both strings and compare them.
+
+Example:
+
+Python
+
+def are_anagrams(s1, s2):
+    # Clean and normalize strings (remove spaces, convert to lowercase)
+    s1_cleaned = "".join(s1.lower().split())
+    s2_cleaned = "".join(s2.lower().split())
+
+    if len(s1_cleaned) != len(s2_cleaned):
+        return False
+
+    return sorted(s1_cleaned) == sorted(s2_cleaned)
+
+print(f"'listen' and 'silent' are anagrams: {are_anagrams('listen', 'silent')}")
+print(f"'Debit card' and 'Bad credit' are anagrams: {are_anagrams('Debit card', 'Bad credit')}")
+print(f"'hello' and 'world' are anagrams: {are_anagrams('hello', 'world')}")
+
+
+14. How do you remove a specific character from a string?
+
+You can use str.replace(), str.join() with a filter, or a list comprehension.
+
+Example:
+
+Python
+
+s = "programming"
+char_to_remove = 'g'
+
+# Using str.replace() (replaces all occurrences)
+s_replaced = s.replace(char_to_remove, "")
+print(f"After replace(): {s_replaced}")
+
+# Using join() with filter
+s_filtered = "".join(char for char in s if char != char_to_remove)
+print(f"After filter: {s_filtered}")
+
+
+15. What is Unicode and how does Python handle it?
+
+Unicode: A universal character encoding standard that assigns a unique number (code point) to every character in every writing system of the world. It aims to unify different character sets, allowing computers to represent and manipulate text from various languages.
+Python's handling:
+Python 3: All strings are Unicode by default. When you define a string literal (e.g., 'hello'), it's a Unicode string.
+Internal Representation: Python stores Unicode strings internally using a variable-width encoding (like UTF-8, UTF-16, or UTF-32) depending on the characters present, optimizing memory usage.
+Encoding/Decoding: When interacting with external systems (files, networks), strings need to be converted to a sequence of bytes using an encoding (e.g., UTF-8, Latin-1). This process is called encoding. When reading bytes back into Python strings, it's called decoding.
+Example:
+
+Python
+
+# A Unicode string
+unicode_string = "Hello, world! 😊"
+print(f"Type of string: {type(unicode_string)}")
+print(f"String: {unicode_string}")
+
+# Encoding to bytes (e.g., UTF-8)
+encoded_bytes = unicode_string.encode('utf-8')
+print(f"Encoded bytes (UTF-8): {encoded_bytes}")
+print(f"Type of bytes: {type(encoded_bytes)}")
+
+# Decoding bytes back to a string
+decoded_string = encoded_bytes.decode('utf-8')
+print(f"Decoded string: {decoded_string}")
+
+
+16. How do you encode and decode strings in Python?
+
+Encoding: Converting a Python Unicode string into a sequence of bytes using a specific character encoding scheme. Use the encode() method.
+Decoding: Converting a sequence of bytes into a Python Unicode string using a specific character encoding scheme. Use the decode() method.
+Example:
+
+Python
+
+my_string = "你好世界" # Chinese characters for "Hello world"
+
+# Encode string to bytes using UTF-8
+encoded_utf8 = my_string.encode('utf-8')
+print(f"UTF-8 encoded: {encoded_utf8}") # b'\xe4\xbd\xa0\xe5\xa5\xbd\xe4\xb8\x96\xe7\x95\x8c'
+
+# Encode string to bytes using GBK (another Chinese encoding)
+encoded_gbk = my_string.encode('gbk')
+print(f"GBK encoded: {encoded_gbk}")   # b'\xc4\xe3\xba\xc3\xca\xc0\xbd\xe7'
+
+# Decode bytes back to string (must use the correct encoding)
+decoded_utf8 = encoded_utf8.decode('utf-8')
+print(f"UTF-8 decoded: {decoded_utf8}")
+
+decoded_gbk = encoded_gbk.decode('gbk')
+print(f"GBK decoded: {decoded_gbk}")
+
+# What happens if you decode with the wrong encoding?
+try:
+    wrong_decode = encoded_utf8.decode('latin-1')
+    print(f"Wrong decode: {wrong_decode}")
+except UnicodeDecodeError as e:
+    print(f"UnicodeDecodeError: {e} (Attempted to decode UTF-8 bytes with Latin-1)")
+
+
+17. How can you use join() efficiently?
+
+The str.join() method is very efficient for concatenating many strings, especially compared to using the + operator in a loop. This is because + creates a new string object in each iteration, leading to many intermediate objects and poor performance, while join() performs the concatenation in a single, optimized operation.
+
+Example:
+
+Python
+
+words = ["This", "is", "a", "list", "of", "words."]
+
+# Efficient using join()
+sentence_efficient = " ".join(words)
+print(f"Efficient join: {sentence_efficient}")
+
+# Inefficient using + in a loop (avoid for many strings)
+# sentence_inefficient = ""
+# for word in words:
+#     sentence_inefficient += word + " "
+# print(f"Inefficient concatenation: {sentence_inefficient.strip()}") # strip to remove trailing space
+
+
+18. Write a program to find all substrings of a given string.
+
+A substring is a contiguous sequence of characters within a string.
+
+Example:
+
+Python
+
+def find_all_substrings(s):
+    n = len(s)
+    substrings = []
+    for i in range(n):
+        for j in range(i, n):
+            substrings.append(s[i : j + 1])
+    return substrings
+
+s = "abc"
+print(f"All substrings of '{s}': {find_all_substrings(s)}")
+# Output: ['a', 'ab', 'abc', 'b', 'bc', 'c']
+
+
+19. Explain the use of startswith() and endswith().
+
+These methods are used to check if a string begins or ends with a specified prefix or suffix. They are case-sensitive.
+
+str.startswith(prefix, start=0, end=len(str)): Returns True if the string starts with prefix, otherwise False.
+str.endswith(suffix, start=0, end=len(str)): Returns True if the string ends with suffix, otherwise False.
+You can also pass a tuple of prefixes/suffixes to check against multiple possibilities.
+
+Example:
+
+Python
+
+filename = "document.pdf"
+
+print(f"'{filename}' starts with 'doc': {filename.startswith('doc')}")
+print(f"'{filename}' ends with '.pdf': {filename.endswith('.pdf')}")
+print(f"'{filename}' ends with '.txt' or '.csv': {filename.endswith(('.txt', '.csv'))}")
+
+url = "https://www.example.com"
+print(f"'{url}' starts with 'http': {url.startswith('http')}")
+
+
+20. How do you replace multiple characters in a string?
+
+You can chain replace() calls, use str.translate() with str.maketrans(), or use re.sub() for more complex patterns.
+
+Example:
+
+Python
+
+text = "hello world"
+
+# Method 1: Chaining replace()
+# Replace 'l' with 'X', 'o' with 'Y'
+replaced_text1 = text.replace('l', 'X').replace('o', 'Y')
+print(f"Chained replace(): {replaced_text1}") # Output: heXXY wYrXd
+
+# Method 2: Using str.translate() and str.maketrans()
+# This is often more efficient for many single-character replacements.
+translation_table = str.maketrans("lo", "XY") # Replace 'l'->'X', 'o'->'Y'
+replaced_text2 = text.translate(translation_table)
+print(f"str.translate(): {replaced_text2}") # Output: heXXY wYrXd
+
+# Method 3: Using re.sub() for more complex patterns or sets of characters
+import re
+# Replace any of 'l', 'o', 'd' with '*'
+replaced_text3 = re.sub(r'[lod]', '*', text)
+print(f"re.sub(): {replaced_text3}") # Output: he**o wor**
+
+
+21. Write a function to check if a string contains only digits.
+
+Use the str.isdigit() method.
+
+Example:
+
+Python
+
+def contains_only_digits(s):
+    return s.isdigit()
+
+print(f"'12345' contains only digits: {contains_only_digits('12345')}")
+print(f"'123a45' contains only digits: {contains_only_digits('123a45')}")
+print(f"'' contains only digits: {contains_only_digits('')}") # False, isdigit() returns False for empty strings
+
+
+22. How do you perform case-insensitive comparison between strings?
+
+Convert both strings to the same case (either lowercase or uppercase) before comparing.
+
+Example:
+
+Python
+
+s1 = "Python"
+s2 = "python"
+s3 = "PyThOn"
+
+print(f"'{s1}' == '{s2}' (case-sensitive): {s1 == s2}")
+print(f"'{s1}' == '{s3}' (case-sensitive): {s1 == s3}")
+
+# Case-insensitive comparison
+print(f"'{s1}' == '{s2}' (case-insensitive): {s1.lower() == s2.lower()}")
+print(f"'{s1}' == '{s3}' (case-insensitive): {s1.upper() == s3.upper()}")
+
+
+23. Convert a camelCase string to snake_case.
+
+This typically involves using regular expressions to insert underscores before uppercase letters (except the first character) and then converting the entire string to lowercase.
+
+Example:
+
+Python
+
+import re
+
+def camel_to_snake(camel_str):
+    # Use regex to find uppercase letters not at the beginning of the string
+    # and prepend an underscore. Then convert to lowercase.
+    snake_str = re.sub(r'(?<!^)(?=[A-Z])', '_', camel_str).lower()
+    return snake_str
+
+print(f"camelCase to snake_case 'myVariableName': {camel_to_snake('myVariableName')}")
+print(f"camelCase to snake_case 'AnotherExampleString': {camel_to_snake('AnotherExampleString')}")
+print(f"camelCase to snake_case 'URLParser': {camel_to_snake('URLParser')}") # Might need refinement for acronyms
+
+
+24. How do you compress a string using Run-Length Encoding?
+
+Run-Length Encoding (RLE) is a simple form of data compression where consecutive identical data values are stored as a single data value and count.
+
+Example:
+
+Python
+
+def run_length_encode(s):
+    if not s:
+        return ""
+
+    encoded_string = []
+    count = 1
+    for i in range(1, len(s)):
+        if s[i] == s[i-1]:
+            count += 1
+        else:
+            encoded_string.append(s[i-1] + str(count))
+            count = 1
+    encoded_string.append(s[-1] + str(count)) # Add the last character and its count
+    return "".join(encoded_string)
+
+print(f"'AAABBCCCA' RLE: {run_length_encode('AAABBCCCA')}") # Output: A3B2C3A1
+print(f"'a' RLE: {run_length_encode('a')}") # Output: a1
+print(f"'' RLE: {run_length_encode('')}") # Output:
+
+
+25. Write a function that returns the longest palindromic substring.
+
+This is a classic dynamic programming problem. A simpler, though less efficient, approach involves checking all substrings.
+
+Example (Brute-force/Simpler approach):
+
+Python
+
+def is_palindrome(s):
+    return s == s[::-1]
+
+def longest_palindromic_substring(s):
+    if not s:
+        return ""
+    
+    longest_palindrome = ""
+    max_len = 0
+
+    n = len(s)
+    for i in range(n):
+        for j in range(i, n):
+            substring = s[i : j + 1]
+            if is_palindrome(substring):
+                if len(substring) > max_len:
+                    max_len = len(substring)
+                    longest_palindrome = substring
+    return longest_palindrome
+
+print(f"Longest palindromic substring of 'babad': {longest_palindromic_substring('babad')}") # Output: bab or aba
+print(f"Longest palindromic substring of 'cbbd': {longest_palindromic_substring('cbbd')}")   # Output: bb
+print(f"Longest palindromic substring of 'a': {longest_palindromic_substring('a')}")         # Output: a
+print(f"Longest palindromic substring of 'racecar': {longest_palindromic_substring('racecar')}") # Output: racecar
+Lists
+
+
+26. Explain how list slicing works with negative indices.
+
+List slicing uses [start:stop:step].
+
+Negative start or stop: Refers to positions from the end of the list. -1 is the last element, -2 is the second to last, and so on.
+Negative step: Reverses the order of elements in the slice.
+Example:
+
+Python
+
+my_list = [10, 20, 30, 40, 50, 60, 70]
+
+print(f"Original: {my_list}")
+print(f"my_list[-1]: {my_list[-1]}")       # Last element: 70
+print(f"my_list[-3:]: {my_list[-3:]}")     # Last three elements: [50, 60, 70]
+print(f"my_list[:-3]: {my_list[:-3]}")     # All but the last three: [10, 20, 30, 40]
+print(f"my_list[1:-1]: {my_list[1:-1]}")   # From index 1 up to (but not including) last: [20, 30, 40, 50, 60]
+print(f"my_list[::-1]: {my_list[::-1]}")   # Reverse the entire list: [70, 60, 50, 40, 30, 20, 10]
+print(f"my_list[-2::-1]: {my_list[-2::-1]}") # From second to last, reversed to beginning: [60, 50, 40, 30, 20, 10]
+
+
+27. What is the difference between list.append() and list.extend()?
+
+list.append(element): Adds a single element to the end of the list. If you append another list, it will be added as a single sublist.
+list.extend(iterable): Adds all elements from an iterable (e.g., another list, tuple, string) to the end of the list. It "extends" the list by concatenating the elements.
+Example:
+
+Python
+
+list1 = [1, 2, 3]
+list2 = [4, 5]
+list3 = [6, 7]
+
+list1.append(list2) # Appends list2 as a single element
+print(f"After append(): {list1}") # Output: [1, 2, 3, [4, 5]]
+
+list3.extend(list2) # Extends list3 with elements of list2
+print(f"After extend(): {list3}") # Output: [6, 7, 4, 5]
+
+
+28. How do you remove all occurrences of a value from a list?
+
+You can use a list comprehension, filter(), or a while loop with remove(). remove() only removes the first occurrence, so a loop is needed.
+
+Example:
+
+Python
+
+my_list = [1, 2, 3, 2, 4, 2, 5]
+value_to_remove = 2
+
+# Method 1: List comprehension (recommended)
+filtered_list = [x for x in my_list if x != value_to_remove]
+print(f"List after removing all '{value_to_remove}' (comprehension): {filtered_list}")
+
+# Method 2: Using filter()
+filtered_list_filter = list(filter(lambda x: x != value_to_remove, my_list))
+print(f"List after removing all '{value_to_remove}' (filter): {filtered_list_filter}")
+
+# Method 3: Using a while loop with remove() (modifies in place, less efficient for many removals)
+my_list_copy = list(my_list) # Work on a copy if original list needed
+while value_to_remove in my_list_copy:
+    my_list_copy.remove(value_to_remove)
+print(f"List after removing all '{value_to_remove}' (while loop): {my_list_copy}")
+
+
+29. How do you sort a list of tuples based on the second element?
+
+Use the list.sort() method or sorted() function with the key argument set to a lambda function that extracts the second element.
+
+Example:
+
+Python
+
+data = [('apple', 3), ('banana', 1), ('cherry', 2)]
+
+# Using sort() method (modifies in place)
+data.sort(key=lambda x: x[1])
+print(f"Sorted in-place: {data}")
+
+data_new = [('apple', 3), ('banana', 1), ('cherry', 2)]
+# Using sorted() function (returns a new list)
+sorted_data = sorted(data_new, key=lambda x: x[1])
+print(f"Sorted (new list): {sorted_data}")
+
+# For descending order
+sorted_data_desc = sorted(data_new, key=lambda x: x[1], reverse=True)
+print(f"Sorted descending: {sorted_data_desc}")
+
+
+30. Explain list comprehension with conditional logic.
+
+List comprehensions provide a concise way to create lists. You can include if statements to filter elements or if-else expressions to transform elements conditionally.
+
+Syntax:
+
+[expression for item in iterable if condition] (filtering)
+[expression if condition else other_expression for item in iterable] (conditional transformation)
+Example:
+
+Python
+
+numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+# Filtering: Get only even numbers
+even_numbers = [num for num in numbers if num % 2 == 0]
+print(f"Even numbers: {even_numbers}")
+
+# Conditional Transformation: Square even numbers, keep odd numbers as is
+transformed_numbers = [num**2 if num % 2 == 0 else num for num in numbers]
+print(f"Transformed numbers: {transformed_numbers}")
+
+
+31. How do you flatten a nested list?
+
+You can use nested list comprehensions, a for loop, or itertools.chain.
+
+Example:
+
+Python
+
+nested_list = [[1, 2, 3], [4, 5], [6, 7, 8, 9]]
+
+# Method 1: Nested list comprehension (most common)
+flat_list_comp = [item for sublist in nested_list for item in sublist]
+print(f"Flattened (comprehension): {flat_list_comp}")
+
+# Method 2: Using a for loop
+flat_list_loop = []
+for sublist in nested_list:
+    for item in sublist:
+        flat_list_loop.append(item)
+print(f"Flattened (loop): {flat_list_loop}")
+
+# Method 3: Using itertools.chain (efficient for large lists)
+import itertools
+flat_list_itertools = list(itertools.chain(*nested_list))
+print(f"Flattened (itertools.chain): {flat_list_itertools}")
+
+
+32. Write a program to rotate a list left by k steps.
+
+Rotating a list means moving elements from one end to the other.
+
+Example:
+
+Python
+
+def rotate_list_left(lst, k):
+    if not lst:
+        return []
+    n = len(lst)
+    k = k % n # Handle k larger than list length
+    return lst[k:] + lst[:k]
+
+my_list = [1, 2, 3, 4, 5]
+k_steps = 2
+rotated_list = rotate_list_left(my_list, k_steps)
+print(f"Original: {my_list}, Rotated left by {k_steps}: {rotated_list}") # Output: [3, 4, 5, 1, 2]
+
+my_list_2 = [1, 2, 3, 4, 5]
+k_steps_long = 7 # 7 % 5 = 2
+rotated_list_2 = rotate_list_left(my_list_2, k_steps_long)
+print(f"Original: {my_list_2}, Rotated left by {k_steps_long}: {rotated_list_2}") # Output: [3, 4, 5, 1, 2]
+
+
+33. What is the difference between a shallow copy and a deep copy?
+
+This concept applies to mutable objects like lists, dictionaries, and custom objects.
+
+Shallow Copy: Creates a new compound object, but then inserts references to the objects found in the original. If the original object contains other mutable objects (e.g., nested lists), then changing those nested objects in the copy will also affect the original, and vice versa.
+Methods: Slicing (new_list = old_list[:]), list() constructor (new_list = list(old_list)), copy() method (new_list = old_list.copy()).
+Deep Copy: Creates a new compound object and then, recursively, inserts copies of the objects found in the original. A deep copy is completely independent of the original object.
+Method: copy.deepcopy() from the copy module.
+Example:
+
+Python
+
+import copy
+
+original_list = [1, 2, [3, 4]]
+
+# Shallow Copy
+shallow_copy = original_list[:]
+shallow_copy[0] = 100        # Modifies a primitive element, only affects shallow_copy
+shallow_copy[2][0] = 300     # Modifies a nested mutable element, affects both!
+
+print(f"Original after shallow copy modification: {original_list}") # Output: [1, 2, [300, 4]]
+print(f"Shallow Copy: {shallow_copy}") # Output: [100, 2, [300, 4]]
+
+print("-" * 30)
+
+original_list_deep = [1, 2, [3, 4]]
+
+# Deep Copy
+deep_copy = copy.deepcopy(original_list_deep)
+deep_copy[0] = 1000          # Modifies a primitive element, only affects deep_copy
+deep_copy[2][0] = 3000       # Modifies a nested mutable element, only affects deep_copy
+
+print(f"Original after deep copy modification: {original_list_deep}") # Output: [1, 2, [3, 4]]
+print(f"Deep Copy: {deep_copy}") # Output: [1000, 2, [3000, 4]]
+
+
+34. How do you remove duplicates from a list while preserving order?
+
+The most common and efficient way is to use an ordered set approach: iterate through the list and add elements to a new list only if they haven't been seen before. A set can be used for efficient lookup.
+
+Example:
+
+Python
+
+def remove_duplicates_preserve_order(lst):
+    seen = set()
+    result = []
+    for item in lst:
+        if item not in seen:
+            result.append(item)
+            seen.add(item)
+    return result
+
+my_list = [1, 2, 3, 2, 4, 1, 5, 3]
+unique_list = remove_duplicates_preserve_order(my_list)
+print(f"List with duplicates removed (preserving order): {unique_list}") # Output: [1, 2, 3, 4, 5]
+
+# For hashable items and Python 3.7+ (dict insertion order guaranteed)
+# unique_list_dict_keys = list(dict.fromkeys(my_list))
+# print(f"List with duplicates removed (dict.fromkeys): {unique_list_dict_keys}")
+
+
+35. Explain how the in keyword works with lists.
+
+The in keyword is used to check for membership. It returns True if an element is present in the list, and False otherwise.
+
+How it works (under the hood):
+For lists, the in operator performs a linear search. It iterates through the list from the beginning until it finds a match or reaches the end. This means its time complexity is O(n) in the worst case (where n is the number of elements in the list).
+
+Example:
+
+Python
+
+fruits = ["apple", "banana", "cherry"]
+
+print(f"'apple' in fruits: {'apple' in fruits}")
+print(f"'grape' in fruits: {'grape' in fruits}")
+
+if "banana" in fruits:
+    print("Yes, banana is in the list!")
+
+
+36. Write a function to merge two sorted lists into one sorted list.
+
+This can be done efficiently by iterating through both lists simultaneously and appending the smaller element.
+
+Example:
+
+Python
+
+def merge_sorted_lists(list1, list2):
+    merged = []
+    i, j = 0, 0
+    len1, len2 = len(list1), len(list2)
+
+    while i < len1 and j < len2:
+        if list1[i] <= list2[j]:
+            merged.append(list1[i])
+            i += 1
+        else:
+            merged.append(list2[j])
+            j += 1
+
+    # Add remaining elements from either list
+    merged.extend(list1[i:])
+    merged.extend(list2[j:])
+    return merged
+
+list_a = [1, 3, 5, 7]
+list_b = [2, 4, 6, 8, 9]
+merged = merge_sorted_lists(list_a, list_b)
+print(f"Merged sorted lists: {merged}") # Output: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+
+37. What are mutable vs. immutable types and how do they apply to lists?
+
+Mutable types: Objects whose state (value) can be changed after they are created. Operations on mutable objects can modify the object in place without creating a new object.
+Examples: list, dict, set, custom class instances.
+Immutable types: Objects whose state (value) cannot be changed after they are created. Any operation that appears to modify an immutable object actually creates a new object with the new value.   
+Examples: int, float, str, tuple, bool, frozenset.
+Lists are mutable. This means you can:
+
+Add/remove elements (append, pop, insert, remove).
+Modify elements by index (my_list[0] = new_value).
+Sort the list in place (my_list.sort()).
+Example:
+
+Python
+
+# List is mutable
+my_mutable_list = [1, 2, 3]
+print(f"Original list: {my_mutable_list}, ID: {id(my_mutable_list)}")
+my_mutable_list.append(4)
+print(f"Modified list: {my_mutable_list}, ID: {id(my_mutable_list)}") # ID remains the same
+
+# String (immutable)
+my_immutable_string = "hello"
+print(f"Original string: {my_immutable_string}, ID: {id(my_immutable_string)}")
+new_string = my_immutable_string + " world"
+print(f"New string: {new_string}, ID: {id(new_string)}") # ID changes
+
+
+38. How do you reverse a list using slicing?
+
+A simple and idiomatic way to reverse a list using slicing is [::-1]. This creates a shallow copy of the list in reverse order.
+
+Example:
+
+Python
+
+my_list = [10, 20, 30, 40, 50]
+reversed_list = my_list[::-1]
+print(f"Original list: {my_list}")
+print(f"Reversed list (slicing): {reversed_list}")
+
+# To reverse in-place, use list.reverse() or my_list[:] = my_list[::-1]
+my_list.reverse()
+print(f"Reversed in-place (.reverse()): {my_list}")
+
+
+39. How do you compare two lists for equality?
+
+Use the == operator. It checks if the lists have the same elements in the same order.
+
+Example:
+
+Python
+
+list1 = [1, 2, 3]
+list2 = [1, 2, 3]
+list3 = [3, 2, 1]
+list4 = [1, 2, 3, 4]
+
+print(f"list1 == list2: {list1 == list2}") # True
+print(f"list1 == list3: {list1 == list3}") # False (order matters)
+print(f"list1 == list4: {list1 == list4}") # False (different length)
+
+
+40. Write a function to split a list into chunks of size n.
+
+Example:
+
+Python
+
+def chunk_list(lst, n):
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n] # Use yield to create a generator
+
+my_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+chunk_size = 3
+chunks = list(chunk_list(my_list, chunk_size))
+print(f"List chunks: {chunks}") # Output: [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10]]
+
+
+41. How do you find common elements in two lists?
+
+For unique common elements, convert to set and use intersection().
+For preserving duplicates/order or finding all common elements, use list comprehensions or loops.
+Example:
+
+Python
+
+list1 = [1, 2, 3, 4, 5, 2]
+list2 = [3, 4, 5, 6, 7, 4]
+
+# Using sets (most efficient for unique common elements)
+common_elements_set = list(set(list1).intersection(set(list2)))
+print(f"Common unique elements (set): {common_elements_set}")
+
+# Using list comprehension (preserves duplicates if desired, less efficient for large lists)
+common_elements_comp = [item for item in list1 if item in list2]
+print(f"Common elements (comprehension, includes duplicates): {common_elements_comp}")
+
+# If order matters AND you want unique elements in order (e.g., from first list)
+def get_common_ordered(l1, l2):
+    s2 = set(l2)
+    return [item for item in l1 if item in s2]
+print(f"Common ordered elements: {get_common_ordered(list1, list2)}")
+
+
+42. How do you use zip() and enumerate() with lists?
+
+zip(*iterables): Aggregates elements from each of the iterables. It returns an iterator of tuples, where the i-th tuple contains the i-th element from each of the input iterables. It stops when the shortest input iterable is exhausted.   
+enumerate(iterable, start=0): Adds a counter to an iterable and returns it as an enumerate object. It produces pairs of (index, item).
+Example:
+
+Python
+
+names = ["Alice", "Bob", "Charlie"]
+ages = [25, 30, 35]
+scores = [90, 85, 92]
+
+# Using zip to combine lists
+for name, age, score in zip(names, ages, scores):
+    print(f"{name} is {age} years old and scored {score}.")
+
+# Using enumerate to get index and value
+for index, name in enumerate(names):
+    print(f"Person {index}: {name}")
+
+# Combine zip and enumerate
+for i, (name, age) in enumerate(zip(names, ages)):
+    print(f"Entry {i}: {name} ({age})")
+
+
+43. Write a function that returns the second largest number in a list.
+
+Example:
+
+Python
+
+def find_second_largest(lst):
+    if len(lst) < 2:
+        return None # Not enough elements
+    
+    unique_sorted = sorted(list(set(lst)), reverse=True)
+    if len(unique_sorted) < 2:
+        return None # Not enough unique elements
+    
+    return unique_sorted[1]
+
+print(f"Second largest in [1, 5, 2, 8, 3]: {find_second_largest([1, 5, 2, 8, 3])}") # Output: 5
+print(f"Second largest in [10, 10, 5, 8]: {find_second_largest([10, 10, 5, 8])}") # Output: 8
+print(f"Second largest in [5]: {find_second_largest([5])}") # Output: None
+print(f"Second largest in [7, 7, 7]: {find_second_largest([7, 7, 7])}") # Output: None
+
+
+44. How can you filter even numbers from a list using lambda?
+
+Use the filter() built-in function with a lambda expression.
+
+Example:
+
+Python
+
+numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+even_numbers_lambda = list(filter(lambda x: x % 2 == 0, numbers))
+print(f"Even numbers (lambda): {even_numbers_lambda}")
+
+# Using list comprehension (often more readable and Pythonic)
+even_numbers_comp = [x for x in numbers if x % 2 == 0]
+print(f"Even numbers (comprehension): {even_numbers_comp}")
+
+
+45. Convert a list of strings into a single comma-separated string.
+
+Use the str.join() method.
+
+Example:
+
+Python
+
+fruits = ["apple", "banana", "orange", "grape"]
+comma_separated_string = ", ".join(fruits)
+print(f"Comma-separated string: {comma_separated_string}")
+
+
+46. Write a function to get all combinations of elements in a list.
+
+Use itertools.combinations from the itertools module.
+
+Example:
+
+Python
+
+import itertools
+
+def get_combinations(lst, r):
+    # r is the length of combinations
+    return list(itertools.combinations(lst, r))
+
+my_list = [1, 2, 3]
+print(f"Combinations of length 2 from {my_list}: {get_combinations(my_list, 2)}")
+# Output: [(1, 2), (1, 3), (2, 3)]
+
+print(f"Combinations of length 3 from {my_list}: {get_combinations(my_list, 3)}")
+# Output: [(1, 2, 3)]
+
+
+47. How do you generate a list of prime numbers?
+
+Using a sieve method like Sieve of Eratosthenes is efficient for a range of numbers.
+
+Example (Sieve of Eratosthenes):
+
+Python
+
+def sieve_of_eratosthenes(limit):
+    primes = [True] * (limit + 1)
+    if limit >= 0:
+        primes[0] = False # 0 is not prime
+    if limit >= 1:
+        primes[1] = False # 1 is not prime
+
+    for p in range(2, int(limit**0.5) + 1):
+        if primes[p]:
+            for multiple in range(p*p, limit + 1, p):
+                primes[multiple] = False
+
+    return [i for i, is_prime in enumerate(primes) if is_prime]
+
+print(f"Primes up to 20: {sieve_of_eratosthenes(20)}")
+# Output: [2, 3, 5, 7, 11, 13, 17, 19]
+
+
+48. Write a program to count frequency of each element in a list.
+
+Use a dictionary or collections.Counter.
+
+Example:
+
+Python
+
+from collections import Counter
+
+def count_element_frequency_dict(lst):
+    freq = {}
+    for item in lst:
+        freq[item] = freq.get(item, 0) + 1
+    return freq
+
+def count_element_frequency_counter(lst):
+    return Counter(lst)
+
+my_list = [1, 2, 2, 3, 1, 4, 'a', 'b', 'a']
+print(f"Element frequency (dict): {count_element_frequency_dict(my_list)}")
+print(f"Element frequency (Counter): {count_element_frequency_counter(my_list)}")
+
+
+49. What is list unpacking? Provide an example.
+
+List unpacking (or sequence unpacking) is an assignment feature in Python that allows you to assign elements of an iterable (like a list or tuple) to multiple variables in a single statement. The number of variables on the left must match the number of elements in the iterable on the right, unless you use the * operator.
+
+Example:
+
+Python
+
+# Basic unpacking
+my_list = [1, 2, 3]
+a, b, c = my_list
+print(f"a: {a}, b: {b}, c: {c}") # Output: a: 1, b: 2, c: 3
+
+# Unpacking with * (star operator / extended unpacking)
+# This collects remaining elements into a list.
+data = [10, 20, 30, 40, 50]
+first, *middle, last = data
+print(f"first: {first}, middle: {middle}, last: {last}") # Output: first: 10, middle: [20, 30, 40], last: 50
+
+# Swapping variables (classic unpacking use)
+x, y = 10, 20
+x, y = y, x # Unpack (20, 10) into (x, y)
+print(f"x: {x}, y: {y}") # Output: x: 20, y: 10
+
+
+50. Explain how list iteration performance can be optimized.
+
+Optimizing list iteration in Python generally involves leveraging C-optimized built-in functions and avoiding slow Python-level loops.
+
+Prefer Built-in Functions and Methods: sum(), min(), max(), len(), sort(), count(), index(), extend(), append(). These are highly optimized in C.
+Use List Comprehensions: For creating new lists based on existing ones, list comprehensions are almost always faster than explicit for loops with append().
+Use map() and filter(): For applying a function to each element or filtering elements, map() and filter() can be more efficient than for loops, especially when combined with lambda functions or other C-implemented functions. They return iterators, which can be memory-efficient.
+Avoid list.insert() and list.pop(0) in loops: Inserting or removing from the beginning of a list (or anywhere but the end) requires shifting all subsequent elements, which is an O(n) operation. If done repeatedly in a loop, it becomes O(n^2). Use collections.deque for efficient appends/pops from both ends.
+Use set or dict for fast lookups: If you're frequently checking for element existence (item in my_list), converting the list to a set (if elements are hashable) or a dict (for key-value lookups) can change lookup time from O(n) to O(1) on average.
+Pre-allocate if exact size is known (less common in Python): While not a direct C-level optimization, if you know the exact final size of a list, creating it with [None] * size and then assigning by index can sometimes be marginally faster than repeated append() calls, though less Pythonic.
+Example:
+
+Python
+
+import time
+
+my_list = list(range(1000000))
+
+# Inefficient loop (avoid for large lists)
+start_time = time.time()
+new_list_loop = []
+for x in my_list:
+    new_list_loop.append(x * 2)
+end_time = time.time()
+print(f"Loop + append time: {end_time - start_time:.4f} seconds")
+
+# Efficient list comprehension
+start_time = time.time()
+new_list_comp = [x * 2 for x in my_list]
+end_time = time.time()
+print(f"List comprehension time: {end_time - start_time:.4f} seconds")
+
+# Efficient map
+start_time = time.time()
+new_list_map = list(map(lambda x: x * 2, my_list))
+end_time = time.time()
+print(f"Map time: {end_time - start_time:.4f} seconds")
+(You'll typically see list comprehension and map being faster than the loop + append)
+
+
+51. How do you iterate over multiple lists in parallel?
+
+Use the zip() function.
+
+Example:
+
+Python
+
+list1 = ['a', 'b', 'c']
+list2 = [1, 2, 3]
+list3 = ['x', 'y', 'z']
+
+for item1, item2, item3 in zip(list1, list2, list3):
+    print(f"({item1}, {item2}, {item3})")
+
+# Output:
+# (a, 1, x)
+# (b, 2, y)
+# (c, 3, z)
+
+# zip stops at the shortest list
+list4 = [10, 20]
+for item1, item4 in zip(list1, list4):
+    print(f"({item1}, {item4})")
+# Output:
+# (a, 10)
+# (b, 20)
+Loops
+
+
+52. Explain range() vs. xrange() (in Python 2).
+
+range() (Python 3 and Python 2):
+In Python 3, range() returns an immutable sequence type that generates numbers on demand (a generator-like object). It's memory-efficient because it doesn't create the full list in memory.
+In Python 2, range() returns an actual list of numbers, which can consume a lot of memory for large ranges.
+xrange() (Python 2 only):
+In Python 2, xrange() was similar to Python 3's range(). It returned an xrange object, which was an iterator that generated numbers on demand, making it memory-efficient for large ranges.
+xrange() does not exist in Python 3; range() in Python 3 effectively replaces it.
+Example (Conceptual for Python 2 vs 3 difference):
+
+Python
+
+# In Python 3:
+r = range(10000000)
+print(type(r))       # <class 'range'>
+print(r.__sizeof__()) # Small memory footprint
+
+# In Python 2 (if you were running it):
+# r_py2 = range(10000000)
+# print(type(r_py2))    # <type 'list'>
+# print(r_py2.__sizeof__()) # Large memory footprint
+
+# xr_py2 = xrange(10000000)
+# print(type(xr_py2))   # <type 'xrange'>
+# print(xr_py2.__sizeof__()) # Small memory footprint
+
+
+53. Write a loop to print a number pyramid.
+
+Example:
+
+Python
+
+def print_number_pyramid(rows):
+    for i in range(1, rows + 1):
+        # Print leading spaces
+        print(" " * (rows - i), end="")
+        # Print numbers in increasing order
+        for j in range(1, i + 1):
+            print(j, end="")
+        # Print numbers in decreasing order (excluding the peak)
+        for k in range(i - 1, 0, -1):
+            print(k, end="")
+        print() # New line after each row
+
+print_number_pyramid(5)
+# Output:
+#     1
+#    121
+#   12321
+#  1234321
+# 123454321
+
+
+54. How do you use for-else loops and when?
+
+The else block in a for loop executes only if the loop completes without encountering a break statement. It's often used when you need to perform an action if a certain item is not found after checking all elements, or if a loop finishes naturally.
+
+When to use:
+
+Searching for an item: If you search for an item and break once found, the else block can handle the "not found" case.
+Validation: If a loop iterates to validate conditions, the else block can execute if all conditions pass.
+Example:
+
+Python
+
+# Scenario 1: Item found
+numbers = [1, 5, 8, 12, 15]
+search_item = 8
+
+for num in numbers:
+    if num == search_item:
+        print(f"{search_item} found in the list.")
+        break
+else:
+    print(f"{search_item} not found in the list.")
+
+print("-" * 20)
+
+# Scenario 2: Item not found
+search_item_not_found = 99
+
+for num in numbers:
+    if num == search_item_not_found:
+        print(f"{search_item_not_found} found in the list.")
+        break
+else:
+    print(f"{search_item_not_found} not found in the list.")
+
+
+55. Create a pattern using nested for loops.
+
+Example (Star triangle):
+
+Python
+
+def print_star_triangle(rows):
+    for i in range(1, rows + 1):
+        for j in range(i):
+            print("*", end="")
+        print()
+
+print_star_triangle(5)
+# Output:
+# *
+# **
+# ***
+# ****
+# *****
+
+
+56. How can you break out of nested loops?
+
+There's no direct built-in keyword to break out of all outer loops at once. Common methods include:
+
+Using a flag variable: Set a boolean flag inside the inner loop and check it in the outer loop(s).
+Using a function: Encapsulate the nested loops within a function and use return to exit the function, thus exiting all loops.
+Example (Using a flag):
+
+Python
+
+found = False
+for i in range(3):
+    for j in range(3):
+        print(f"i={i}, j={j}")
+        if i == 1 and j == 1:
+            print("Breaking out of nested loops!")
+            found = True
+            break # Breaks inner loop
+    if found:
+        break # Breaks outer loop
+Example (Using a function):
+
+Python
+
+def find_element(matrix, target):
+    for i in range(len(matrix)):
+        for j in range(len(matrix[i])):
+            print(f"Checking ({i}, {j})")
+            if matrix[i][j] == target:
+                print(f"Target {target} found at ({i}, {j})")
+                return True # Exits the function, thus all loops
+    print(f"Target {target} not found.")
+    return False
+
+matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+find_element(matrix, 5)
+print("-" * 20)
+find_element(matrix, 10)
+
+
+57. Iterate over a dictionary’s key-value pairs using a loop.
+
+Use the .items() method, which returns an iterable of (key, value) tuples.
+
+Example:
+
+Python
+
+my_dict = {'apple': 1, 'banana': 2, 'cherry': 3}
+
+for key, value in my_dict.items():
+    print(f"Key: {key}, Value: {value}")
+
+# Output:
+# Key: apple, Value: 1
+# Key: banana, Value: 2
+# Key: cherry, Value: 3
+
+
+58. How do you generate combinations/permutations using loops?
+
+While itertools is highly recommended for efficiency and correctness, you can conceptualize them with loops.
+
+Example (Conceptual - Permutations for 3 elements):
+
+Python
+
+def generate_permutations_simple(elements):
+    # This is a highly simplified example for illustration, not scalable for large lists
+    if len(elements) == 1:
+        return [elements]
+    
+    perms = []
+    for i, char in enumerate(elements):
+        remaining_elements = elements[:i] + elements[i+1:]
+        for perm in generate_permutations_simple(remaining_elements):
+            perms.append([char] + perm)
+    return perms
+
+my_list = ['A', 'B', 'C']
+print(f"Simple permutations of {my_list}: {generate_permutations_simple(my_list)}")
+
+# For real-world use, always prefer itertools:
+import itertools
+print(f"Using itertools.permutations: {list(itertools.permutations(my_list))}")
+print(f"Using itertools.combinations: {list(itertools.combinations(my_list, 2))}")
+
+
+59. What are continue and pass in for-loops?
+
+continue: Skips the rest of the current iteration of the loop and moves to the next iteration.
+pass: A null operation. It does nothing. It's a placeholder for code that hasn't been written yet, or to satisfy syntax requirements where no action is needed.
+Example:
+
+Python
+
+numbers = [1, 2, 3, 4, 5]
+
+print("Using continue:")
+for num in numbers:
+    if num % 2 != 0: # If odd, skip to next iteration
+        continue
+    print(f"Even number: {num}") # Only even numbers will be printed
+
+print("\nUsing pass:")
+for num in numbers:
+    if num % 2 == 0:
+        pass # Do nothing if even
+    else:
+        print(f"Odd number: {num}") # Only odd numbers will be printed
+
+
+60. Loop over a list and modify it without causing index errors.
+
+Modifying a list while iterating over it with a simple for loop and direct indexing (e.g., for i in range(len(my_list))) can lead to IndexError or skipping elements if items are removed.
+
+Safe ways to modify a list during iteration:
+
+Iterate over a copy: The most robust approach if you are adding/removing elements.
+Iterate backwards: If you are only removing elements.
+Use a list comprehension (for creating a new list).
+Example:
+
+Python
+
+my_list = [1, 2, 3, 4, 5, 6]
+
+# Method 1: Iterate over a copy (safe for additions/removals)
+print("Modifying by iterating over a copy:")
+new_list = list(my_list) # Create a shallow copy
+for item in new_list: # Iterate over the copy
+    if item % 2 == 0:
+        my_list.remove(item) # Modify the original list
+print(f"Original list after modification: {my_list}") # Output: [1, 3, 5]
+
+# Reset list for next example
+my_list = [1, 2, 3, 4, 5, 6]
+
+# Method 2: Iterate backwards (safe for removals)
+print("\nModifying by iterating backwards:")
+for i in range(len(my_list) - 1, -1, -1):
+    if my_list[i] % 2 == 0:
+        my_list.pop(i) # Remove element
+print(f"Original list after modification: {my_list}") # Output: [1, 3, 5]
+
+# Reset list for next example
+my_list = [1, 2, 3, 4, 5, 6]
+
+# Method 3: Using list comprehension (creates a new list, usually preferred)
+print("\nModifying using list comprehension (creates new list):")
+filtered_list = [item for item in my_list if item % 2 != 0]
+print(f"New list (filtered): {filtered_list}") # Output: [1, 3, 5]
+
+
+61. Write a loop to find duplicates in a list.
+
+Example:
+
+Python
+
+def find_duplicates_loop(lst):
+    seen = set()
+    duplicates = set()
+    for item in lst:
+        if item in seen:
+            duplicates.add(item)
+        else:
+            seen.add(item)
+    return list(duplicates)
+
+my_list = [1, 2, 3, 2, 4, 1, 5, 3]
+print(f"Duplicates in {my_list}: {find_duplicates_loop(my_list)}") # Output: [1, 2, 3] (order may vary)
+
+
+62. Create a multiplication table using nested loops.
+
+Example:
+
+Python
+
+def print_multiplication_table(n):
+    for i in range(1, n + 1):
+        for j in range(1, n + 1):
+            print(f"{i * j:4d}", end="") # Format for alignment
+        print() # New line after each row
+
+print_multiplication_table(5)
+# Output:
+#    1   2   3   4   5
+#    2   4   6   8  10
+#    3   6   9  12  15
+#    4   8  12  16  20
+#    5  10  15  20  25
+
+
+63. Write a for loop to count uppercase/lowercase letters in a string.
+
+Example:
+
+Python
+
+def count_case_letters(s):
+    upper_count = 0
+    lower_count = 0
+    for char in s:
+        if 'A' <= char <= 'Z': # or char.isupper()
+            upper_count += 1
+        elif 'a' <= char <= 'z': # or char.islower()
+            lower_count += 1
+    return upper_count, lower_count
+
+text = "Hello World PyThon"
+upper, lower = count_case_letters(text)
+print(f"Uppercase letters: {upper}") # Output: 4
+print(f"Lowercase letters: {lower}") # Output: 11
+
+
+64. Loop over a list and remove even numbers.
+
+Example (Modifying in-place by iterating backwards):
+
+Python
+
+my_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+print(f"Original list: {my_list}")
+
+for i in range(len(my_list) - 1, -1, -1): # Iterate backwards
+    if my_list[i] % 2 == 0:
+        my_list.pop(i) # Remove the element at index i
+
+print(f"List after removing even numbers: {my_list}") # Output: [1, 3, 5, 7, 9]
+
+# More Pythonic way (creates new list):
+original_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+odd_numbers = [x for x in original_list if x % 2 != 0]
+print(f"New list with odd numbers: {odd_numbers}")
+
+
+65. Create a matrix using nested loops.
+
+Example:
+
+Python
+
+def create_matrix(rows, cols, initial_value=0):
+    matrix = []
+    for i in range(rows):
+        row = []
+        for j in range(cols):
+            row.append(initial_value)
+        matrix.append(row)
+    return matrix
+
+# Create a 3x4 matrix filled with zeros
+my_matrix = create_matrix(3, 4)
+for row in my_matrix:
+    print(row)
+# Output:
+# [0, 0, 0, 0]
+# [0, 0, 0, 0]
+# [0, 0, 0, 0]
+
+# Using list comprehension (more concise)
+matrix_comp = [[initial_value for _ in range(cols)] for _ in range(rows)]
+
+
+66. Loop through a string and replace vowels.
+
+Example:
+
+Python
+
+def replace_vowels(s, replacement_char='*'):
+    vowels = "aeiouAEIOU"
+    new_string = ""
+    for char in s:
+        if char in vowels:
+            new_string += replacement_char
+        else:
+            new_string += char
+    return new_string
+
+text = "Programming in Python"
+modified_text = replace_vowels(text, '_')
+print(f"String with vowels replaced: {modified_text}") # Output: Pr_gr_mm_ng _n Pyth_n
+
+
+67. Write a loop that simulates a basic password check.
+
+Example:
+
+Python
+
+def basic_password_check():
+    correct_password = "password123"
+    max_attempts = 3
+    attempts = 0
+
+    while attempts < max_attempts:
+        user_input = input("Enter password: ")
+        if user_input == correct_password:
+            print("Login successful!")
+            break
+        else:
+            attempts += 1
+            remaining_attempts = max_attempts - attempts
+            if remaining_attempts > 0:
+                print(f"Incorrect password. {remaining_attempts} attempts remaining.")
+            else:
+                print("No attempts left. Account locked.")
+    else: # This else runs if the while loop completes without a break
+        print("Exiting password check.")
+
+# Uncomment to run:
+# basic_password_check()
+
+
+68. How do you transpose a 2D list using loops?
+
+Transposing means swapping rows and columns.
+
+Example:
+
+Python
+
+def transpose_matrix(matrix):
+    if not matrix or not matrix[0]:
+        return []
+
+    rows = len(matrix)
+    cols = len(matrix[0])
+
+    transposed = []
+    for j in range(cols):
+        new_row = []
+        for i in range(rows):
+            new_row.append(matrix[i][j])
+        transposed.append(new_row)
+    return transposed
+
+matrix = [[1, 2, 3],
+          [4, 5, 6]]
+transposed_matrix = transpose_matrix(matrix)
+for row in transposed_matrix:
+    print(row)
+# Output:
+# [1, 4]
+# [2, 5]
+# [3, 6]
+
+# Using zip (more Pythonic and efficient)
+transposed_zip = [list(row) for row in zip(*matrix)]
+print(f"Transposed using zip: {transposed_zip}")
+
+
+69. Write a loop to convert a list of strings to a list of integers.
+
+Example:
+
+Python
+
+string_list = ["1", "2", "3", "10", "20"]
+
+# Using a for loop
+int_list_loop = []
+for s in string_list:
+    int_list_loop.append(int(s))
+print(f"Converted to integers (loop): {int_list_loop}")
+
+# Using list comprehension (more Pythonic)
+int_list_comp = [int(s) for s in string_list]
+print(f"Converted to integers (comprehension): {int_list_comp}")
+
+
+70. How do you combine a for-loop with list comprehensions?
+
+List comprehensions are a compact way of writing for loops that construct lists. They often replace explicit for loops for list creation.
+
+Example:
+
+Python
+
+# Original for loop
+squares_loop = []
+for i in range(5):
+    squares_loop.append(i * i)
+print(f"Squares (loop): {squares_loop}")
+
+# Equivalent using list comprehension
+squares_comp = [i * i for i in range(5)]
+print(f"Squares (comprehension): {squares_comp}")
+
+# Combining nested loops in a comprehension
+matrix = [[1, 2], [3, 4]]
+flattened = [num for row in matrix for num in row]
+print(f"Flattened matrix: {flattened}")
+While Loops
+
+
+71. Write a program to find the factorial of a number using a while loop.
+
+Example:
+
+Python
+
+def factorial_while(n):
+    if n < 0:
+        return "Factorial is not defined for negative numbers"
+    if n == 0:
+        return 1
+    
+    result = 1
+    i = 1
+    while i <= n:
+        result *= i
+        i += 1
+    return result
+
+print(f"Factorial of 5: {factorial_while(5)}") # Output: 120
+print(f"Factorial of 0: {factorial_while(0)}") # Output: 1
+
+
+72. How do you use while loops to simulate a login attempt system?
+
+Example:
+
+Python
+
+def login_system():
+    correct_username = "user123"
+    correct_password = "securepass"
+    max_attempts = 3
+    attempts = 0
+
+    while attempts < max_attempts:
+        username_input = input("Enter username: ")
+        password_input = input("Enter password: ")
+
+        if username_input == correct_username and password_input == correct_password:
+            print("Login successful! Welcome.")
+            break # Exit loop on success
+        else:
+            attempts += 1
+            print("Invalid username or password.")
+            if attempts < max_attempts:
+                print(f"You have {max_attempts - attempts} attempts remaining.")
+            else:
+                print("Too many failed attempts. Your account is locked.")
+    else: # This else block executes if the loop finishes normally (i.e., no break)
+        print("Login system closed.")
+
+# Uncomment to run:
+# login_system()
+
+
+73. Write a program to reverse digits of a number using a while loop.
+
+Example:
+
+Python
+
+def reverse_digits_while(number):
+    if number < 0:
+        is_negative = True
+        number = abs(number)
+    else:
+        is_negative = False
+
+    reversed_num = 0
+    while number > 0:
+        digit = number % 10          # Get the last digit
+        reversed_num = reversed_num * 10 + digit # Append digit to reversed_num
+        number = number // 10        # Remove the last digit
+
+    return -reversed_num if is_negative else reversed_num
+
+print(f"Reverse of 12345: {reverse_digits_while(12345)}")   # Output: 54321
+print(f"Reverse of 987: {reverse_digits_while(987)}")     # Output: 789
+print(f"Reverse of -123: {reverse_digits_while(-123)}")   # Output: -321
+print(f"Reverse of 0: {reverse_digits_while(0)}")       # Output: 0
+
+
+74. How do you detect an infinite loop and break it safely?
+
+An infinite loop occurs when the loop's condition never becomes False.
+
+Detection:
+
+Program hangs: Your program stops responding.
+High CPU usage: The process consumes a lot of CPU resources.
+Repeated output: If the loop prints something, you'll see the same output repeating endlessly.
+Breaking it safely:
+
+Ctrl+C (KeyboardInterrupt): In most terminal environments, pressing Ctrl+C will send a KeyboardInterrupt signal, which typically terminates the running Python script.
+Setting a counter/timeout: Design your loop with a counter to limit iterations or use a timeout mechanism if it's dependent on external conditions.
+Example (Preventing with a counter):
+
+Python
+
+def safe_infinite_loop_prevention():
+    count = 0
+    max_iterations = 1000 # Set a reasonable limit
+    while True: # This would be an infinite loop without the break
+        print(f"Iteration {count}")
+        count += 1
+        if count >= max_iterations:
+            print(f"Reached max iterations ({max_iterations}). Breaking out.")
+            break
+
+# Uncomment to run:
+# safe_infinite_loop_prevention()
+
+# Example of a potentially infinite loop (don't run without protection)
+# while True:
+#     print("This will run forever without Ctrl+C")
+
+
+75. Use a while loop to keep asking user input until a condition is met.
+
+Example:
+
+Python
+
+def get_positive_number():
+    num = -1 # Initialize with an invalid value
+    while num <= 0:
+        try:
+            num_str = input("Please enter a positive number: ")
+            num = int(num_str)
+            if num <= 0:
+                print("Error: Number must be positive.")
+        except ValueError:
+            print("Error: Invalid input. Please enter an integer.")
+    print(f"You entered: {num}")
+
+# Uncomment to run:
+# get_positive_number()
+
+
+76. Create a number guessing game using a while loop.
+
+Example:
+
+Python
+
+import random
+
+def guessing_game():
+    secret_number = random.randint(1, 100)
+    guess = 0
+    attempts = 0
+    print("Welcome to the Number Guessing Game!")
+    print("I'm thinking of a number between 1 and 100.")
+
+    while guess != secret_number:
+        try:
+            guess_str = input("Enter your guess: ")
+            guess = int(guess_str)
+            attempts += 1
+
+            if guess < secret_number:
+                print("Too low! Try again.")
+            elif guess > secret_number:
+                print("Too high! Try again.")
+            else:
+                print(f"Congratulations! You guessed the number {secret_number} in {attempts} attempts.")
+        except ValueError:
+            print("Invalid input. Please enter a whole number.")
+
+# Uncomment to run:
+# guessing_game()
+
+
+77. How do you validate user input using a while loop?
+
+A while loop is perfect for repeatedly prompting the user for input until valid input is provided. This often involves try-except blocks for type conversion errors.
+
+Example:
+
+Python
+
+def get_valid_age():
+    age = None
+    while age is None:
+        try:
+            age_str = input("Please enter your age (a number between 0 and 120): ")
+            age_int = int(age_str)
+            if 0 <= age_int <= 120:
+                age = age_int
+            else:
+                print("Age must be between 0 and 120.")
+        except ValueError:
+            print("Invalid input. Please enter a whole number.")
+    return age
+
+# Uncomment to run:
+# user_age = get_valid_age()
+# print(f"Your age is: {user_age}")
+
+
+78. Write a program that finds prime numbers using while.
+
+Example:
+
+Python
+
+def find_primes_up_to_n(n):
+    if n < 2:
+        return []
+    primes = []
+    num = 2 # Start checking from 2
+
+    while num <= n:
+        is_prime = True
+        i = 2
+        while i * i <= num: # Optimize: check divisors up to sqrt(num)
+            if num % i == 0:
+                is_prime = False
+                break
+            i += 1
+        if is_prime:
+            primes.append(num)
+        num += 1
+    return primes
+
+print(f"Primes up to 20 (while loop): {find_primes_up_to_n(20)}")
+# Output: [2, 3, 5, 7, 11, 13, 17, 19]
+
+
+79. What is the difference between while and for loops?
+
+for loop:
+
+Used when you know the number of iterations in advance (e.g., iterating over a fixed sequence like a list, tuple, string, or range()).
+Iterates over the elements of an iterable.
+Syntax is more concise for sequence iteration.
+"Iterate for each item in this collection."
+while loop:
+
+Used when the number of iterations is unknown and depends on a condition being met.
+Continues to execute as long as a specified condition is True.
+Requires manual management of the loop variable/condition to avoid infinite loops.
+"Keep going while this condition is true."
+Example:
+
+Python
+
+# For loop
+print("For loop example:")
+for i in range(3):
+    print(i) # Prints 0, 1, 2
+
+# While loop
+print("\nWhile loop example:")
+count = 0
+while count < 3:
+    print(count)
+    count += 1 # Manual increment
+
+
+80. Simulate a countdown timer using while and time.sleep()
+
+Example:
+
+Python
+
+import time
+
+def countdown(seconds):
+    while seconds > 0:
+        print(f"{seconds}...")
+        time.sleep(1) # Pause for 1 second
+        seconds -= 1
+    print("Blast off!")
+
+# Uncomment to run:
+# countdown(5)
+Functions
+
+
+81. What is the difference between parameters and arguments?
+
+Parameters: These are the names listed inside the parentheses in the function definition. They are placeholders for the values that will be passed into the function when it is called.   
+Arguments: These are the actual values or expressions that are passed into the function when it is called.
+Example:
+
+Python
+
+def greet(name, greeting="Hello"): # 'name' and 'greeting' are parameters
+    print(f"{greeting}, {name}!")
+
+greet("Alice", "Hi") # "Alice" and "Hi" are arguments
+greet("Bob")         # "Bob" is an argument, "Hello" is a default argument
+
+
+82. How do default and keyword arguments work?
+
+Default Arguments: Parameters that have a default value assigned in the function definition. If an argument is not provided for that parameter during the function call, the default value is used. Default arguments must come after non-default arguments.
+Keyword Arguments: Arguments passed to a function using their parameter names. This allows you to pass arguments in any order and makes the function call more readable.
+Example:
+
+Python
+
+def create_user(username, email, active=True, role="member"): # 'active' and 'role' are default arguments
+    print(f"Creating user: {username}, Email: {email}, Active: {active}, Role: {role}")
+
+# Positional arguments
+create_user("john.doe", "john@example.com")
+
+# Using default arguments
+create_user("jane.smith", "jane@example.com", active=False) # 'active' is keyword argument
+
+# Using keyword arguments for all (order doesn't matter)
+create_user(email="alice@example.com", username="alice.w", role="admin")
+
+
+83. Write a function with variable number of arguments using *args and **kwargs.
+
+*args (Arbitrary Positional Arguments): Allows a function to accept an arbitrary number of positional arguments. These arguments are collected into a tuple.
+**kwargs (Arbitrary Keyword Arguments): Allows a function to accept an arbitrary number of keyword arguments. These arguments are collected into a dictionary.
+Example:
+
+Python
+
+def process_data(fixed_arg, *args, **kwargs):
+    print(f"Fixed Argument: {fixed_arg}")
+    print(f"Positional Arguments (*args): {args}")
+    print(f"Keyword Arguments (**kwargs): {kwargs}")
+
+process_data(10, 20, 30, name="Alice", age=30, city="New York")
+# Output:
+# Fixed Argument: 10
+# Positional Arguments (*args): (20, 30)
+# Keyword Arguments (**kwargs): {'name': 'Alice', 'age': 30, 'city': 'New York'}
+
+process_data("report")
+# Output:
+# Fixed Argument: report
+# Positional Arguments (*args): ()
+# Keyword Arguments (**kwargs): {}
+
+
+84. Explain first-class functions and function as objects.
+
+In Python, functions are "first-class citizens" (or "first-class objects"). This means they can be:
+
+Assigned to variables: Like any other data type.
+Passed as arguments to other functions: Known as higher-order functions.
+Returned as values from other functions: For creating closures or decorators.
+Stored in data structures: Like lists or dictionaries.
+This capability is fundamental to functional programming paradigms in Python, enabling concepts like higher-order functions, decorators, and closures.
+
+Example:
+
+Python
+
+def greet(name):
+    return f"Hello, {name}!"
+
+# 1. Assigned to variables
+my_function = greet
+print(my_function("Alice"))
+
+# 2. Passed as arguments (Higher-order function)
+def apply_function(func, value):
+    return func(value)
+
+print(apply_function(greet, "Bob"))
+
+# 3. Returned as values (Closure example below in Q86)
+def create_adder(x):
+    def adder(y):
+        return x + y
+    return adder
+
+add_five = create_adder(5)
+print(add_five(10)) # Output: 15
+
+# 4. Stored in data structures
+function_list = [greet, lambda name: f"Hi, {name}!"]
+print(function_list[0]("Charlie"))
+print(function_list[1]("David"))
+
+
+85. What is recursion? Give an example.
+
+Recursion is a programming technique where a function calls itself, directly or indirectly, to solve a problem. It works by breaking down a problem into smaller, similar subproblems until it reaches a base case that can be solved directly.
+
+Key components of a recursive function:
+
+Base Case: The condition that stops the recursion. Without a base case, the function would call itself indefinitely, leading to a RecursionError.
+Recursive Step: The part where the function calls itself with a modified input, moving closer to the base case.
+Example (Factorial):
+
+Python
+
+def factorial_recursive(n):
+    if n == 0 or n == 1: # Base Case
+        return 1
+    else: # Recursive Step
+        return n * factorial_recursive(n - 1)
+
+print(f"Factorial of 5: {factorial_recursive(5)}") # 5 * 4 * 3 * 2 * 1 = 120
+print(f"Factorial of 0: {factorial_recursive(0)}") # 1
+
+
+86. How do closures work in Python?
+
+A closure is a nested function that remembers and has access to variables from an enclosing scope (its lexical environment), even after the enclosing function has finished execution.
+
+Conditions for a Closure:
+
+There must be a nested function.
+The nested function must refer to a variable from its enclosing function.
+The enclosing function must return the nested function.
+Closures are useful for data hiding, implementing decorators, and creating function factories.
+
+Example:
+
+Python
+
+def outer_function(message):
+    # 'message' is a free variable
+    def inner_function():
+        print(message) # inner_function 'closes over' message
+    return inner_function
+
+my_closure1 = outer_function("Hello from closure 1!")
+my_closure2 = outer_function("Goodbye from closure 2!")
+
+my_closure1() # Output: Hello from closure 1!
+my_closure2() # Output: Goodbye from closure 2!
+
+# 'message' is remembered even after outer_function completes
+print(f"ID of my_closure1: {id(my_closure1)}")
+print(f"ID of my_closure2: {id(my_closure2)}")
+# Each closure has its own 'message' binding.
+
+
+87. What is a lambda function and where would you use it?
+
+A lambda function (or anonymous function) is a small, single-expression function that can be defined without a name.
+
+Syntax: lambda arguments: expression
+
+Where to use it:
+
+Simple operations: When you need a small function for a short period, especially as an argument to higher-order functions.
+map(), filter(), sorted(), key argument: Lambdas are commonly used as the key argument for sorted() or list.sort(), or as the function argument for map() and filter().
+Example:
+
+Python
+
+# Basic lambda function
+add_two = lambda x: x + 2
+print(add_two(5)) # Output: 7
+
+# Using with sorted()
+data = [('apple', 3), ('banana', 1), ('cherry', 2)]
+sorted_data = sorted(data, key=lambda item: item[1]) # Sort by the second element
+print(f"Sorted by second element: {sorted_data}")
+
+# Using with filter()
+numbers = [1, 2, 3, 4, 5, 6]
+even_numbers = list(filter(lambda x: x % 2 == 0, numbers))
+print(f"Even numbers (filter with lambda): {even_numbers}")
+
+
+88. How can you return multiple values from a function?
+
+Python functions inherently return a single object. However, you can return multiple values by returning them as a tuple (which is a single object). When you receive this tuple, you can use unpacking to assign its elements to individual variables.
+
+Example:
+
+Python
+
+def get_user_info():
+    name = "Alice"
+    age = 30
+    city = "New York"
+    return name, age, city # Python automatically packs these into a tuple
+
+# Unpacking the returned tuple
+user_name, user_age, user_city = get_user_info()
+print(f"Name: {user_name}, Age: {user_age}, City: {user_city}")
+
+# Or receive it as a single tuple
+info_tuple = get_user_info()
+print(f"Info as tuple: {info_tuple}")
+
+
+89. Write a decorator to measure execution time of functions.   
+
+A decorator is a design pattern in Python that allows a user to add new functionality to an existing object without modifying its structure. Decorators are essentially functions that take another function as an argument, extend its functionality, and return the extended function.
+
+Example:
+
+Python
+
+import time
+
+def timing_decorator(func):
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        print(f"Function '{func.__name__}' executed in {end_time - start_time:.4f} seconds.")
+        return result
+    return wrapper
+
+@timing_decorator
+def calculate_sum(n):
+    total = 0
+    for i in range(n):
+        total += i
+    return total
+
+@timing_decorator
+def greet_slowly(name):
+    time.sleep(0.5) # Simulate some work
+    print(f"Hello, {name}!")
+
+print(f"Sum: {calculate_sum(1000000)}")
+greet_slowly("Bob")
+
+
+90. Write a function to compute Fibonacci numbers using memoization.   
+
+Memoization is an optimization technique used primarily to speed up computer programs by storing the results of expensive function calls and returning the cached result when the same inputs occur again.   
+
+Example:
+
+Python
+
+def fibonacci_memoization(n, memo={}):
+    if n in memo: # Check if result is already computed
+        return memo[n]
+    
+    if n <= 1: # Base cases
+        return n
+    
+    # Recursive step, store result in memo
+    result = fibonacci_memoization(n - 1, memo) + fibonacci_memoization(n - 2, memo)
+    memo[n] = result
+    return result
+
+print(f"Fibonacci(10): {fibonacci_memoization(10)}") # Output: 55
+print(f"Fibonacci(20): {fibonacci_memoization(20)}") # Much faster due to memoization
+
+
+91. How does Python handle function scope?
+
+Python uses the LEGB rule for name resolution (determining which variable a name refers to):
+
+L (Local): Names assigned within the current function.
+E (Enclosing function locals): Names in the local scope of any enclosing (outer) functions. (Used in nested functions/closures).
+G (Global): Names assigned at the top-level of a module file.
+B (Built-in): Names pre-assigned in Python's built-in module (e.g., print, len, sum).
+When a name is referenced, Python searches for it in this order. If it's not found in any of these scopes, a NameError is raised.
+
+Example:
+
+Python
+
+x = "global_x" # Global scope
+
+def outer_func():
+    y = "enclosing_y" # Enclosing function scope
+    
+    def inner_func():
+        z = "local_z" # Local scope
+        print(f"Accessing z (local): {z}")
+        print(f"Accessing y (enclosing): {y}")
+        print(f"Accessing x (global): {x}")
+        # print(f"Accessing print (built-in): {print}") # print is built-in
+        
+    inner_func()
+    # print(z) # NameError: name 'z' is not defined (z is local to inner_func)
+
+outer_func()
+# print(y) # NameError: name 'y' is not defined (y is local to outer_func)
+
+
+92. Explain global and nonlocal keywords in functions.
+
+global: Used inside a function to declare that a variable being assigned to is a global variable (defined at the module level), not a local one. Without global, an assignment to a variable that already exists globally inside a function would create a new local variable with the same name.
+nonlocal: Used inside a nested function to declare that a variable being assigned to is a nonlocal variable, meaning it belongs to an enclosing function's scope, but is not global. It allows modifying variables in the immediate outer (non-global) scope.
+Example:
+
+Python
+
+# global keyword
+global_var = 10
+
+def modify_global():
+    global global_var # Declare intent to modify the global variable
+    global_var = 20
+    print(f"Inside modify_global, global_var: {global_var}")
+
+def try_to_modify_global_locally():
+    global_var = 30 # Creates a new local variable named global_var
+    print(f"Inside try_to_modify_global_locally, local global_var: {global_var}")
+
+print(f"Initial global_var: {global_var}")
+modify_global()
+print(f"Global_var after modify_global: {global_var}") # Output: 20
+try_to_modify_global_locally()
+print(f"Global_var after try_to_modify_global_locally: {global_var}") # Output: 20 (global not changed)
+
+print("-" * 30)
+
+# nonlocal keyword
+def outer():
+    x = "outer_x"
+
+    def inner():
+        nonlocal x # Declare intent to modify x from outer_func's scope
+        x = "inner_x"
+        print(f"Inside inner, x: {x}")
+
+    inner()
+    print(f"Inside outer, x: {x}") # Output: inner_x (x was modified by inner)
+
+outer()
+
+def outer_no_nonlocal():
+    x = "outer_x_original"
+    def inner_local():
+        x = "inner_x_new_local" # Creates a new local x
+        print(f"Inside inner_local, x: {x}")
+    inner_local()
+    print(f"Inside outer_no_nonlocal, x: {x}") # Output: outer_x_original (x was not modified by inner_local)
+
+outer_no_nonlocal()
+
+
+93. How are anonymous functions used in sorting or filtering?
+
+Anonymous functions (lambdas) are used as key arguments for sorted() or list.sort() to specify a custom sorting criterion, or as the function argument for filter() to define a simple filtering condition.
+
+Example:
+
+Python
+
+# Sorting a list of dictionaries by a specific key
+students = [{'name': 'Alice', 'score': 85}, {'name': 'Bob', 'score': 92}, {'name': 'Charlie', 'score': 78}]
+sorted_students = sorted(students, key=lambda student: student['score'], reverse=True)
+print(f"Sorted students by score: {sorted_students}")
+
+# Filtering a list of numbers
+data = [10, 25, 30, 45, 50]
+filtered_data = list(filter(lambda x: x > 20 and x < 50, data))
+print(f"Filtered data (20 < x < 50): {filtered_data}")
+
+
+94. Write a higher-order function that applies any function to a list.   
+
+A higher-order function is a function that takes one or more functions as arguments, or returns a function as its result.
+
+Example:
+
+Python
+
+def apply_func_to_list(func, data_list):
+    """Applies a given function to each element of a list."""
+    results = []
+    for item in data_list:
+        results.append(func(item))
+    return results
+
+# Example usage:
+numbers = [1, 2, 3, 4, 5]
+
+# Using a built-in function
+squared_numbers = apply_func_to_list(lambda x: x * x, numbers)
+print(f"Squared numbers: {squared_numbers}")
+
+# Using a custom function
+def add_ten(x):
+    return x + 10
+
+added_ten_numbers = apply_func_to_list(add_ten, numbers)
+print(f"Numbers plus ten: {added_ten_numbers}")
+
+
+95. Use a function to validate a password with complex rules.
+
+Example:
+
+Python
+
+import re
+
+def validate_password(password):
+    """
+    Validates a password against several rules:
+    - Minimum 8 characters
+    - At least one uppercase letter
+    - At least one lowercase letter
+    - At least one digit
+    - At least one special character (!@#$%^&*)
+    """
+    if len(password) < 8:
+        return False, "Password must be at least 8 characters long."
+    
+    if not re.search(r"[A-Z]", password):
+        return False, "Password must contain at least one uppercase letter."
+        
+    if not re.search(r"[a-z]", password):
+        return False, "Password must contain at least one lowercase letter."
+        
+    if not re.search(r"\d", password): # \d matches any digit
+        return False, "Password must contain at least one digit."
+        
+    if not re.search(r"[!@#$%^&*]", password): # Special characters
+        return False, "Password must contain at least one special character (!@#$%^&*)."
+        
+    return True, "Password is valid."
+
+# Test cases
+print(validate_password("Password123!")) # True, "Password is valid."
+print(validate_password("pass123"))      # False, "Password must be at least 8 characters long."
+print(validate_password("Password123"))  # False, "Password must contain at least one special character (!@#$%^&*)."
+print(validate_password("password123!")) # False, "Password must contain at least one uppercase letter."
+
+
+96. Write a function that reads and processes a CSV file.
+
+Example:
+
+Python
+
+import csv
+
+def process_csv(filepath):
+    """
+    Reads a CSV file, prints its content, and returns data as a list of dictionaries.
+    Assumes the first row is the header.
+    """
+    data = []
+    try:
+        with open(filepath, mode='r', newline='', encoding='utf-8') as file:
+            reader = csv.DictReader(file) # Use DictReader to read rows as dictionaries
+            for row in reader:
+                data.append(row)
+                # print(row) # You can process each row here
+        print(f"Successfully processed {len(data)} rows from {filepath}")
+        return data
+    except FileNotFoundError:
+        print(f"Error: The file '{filepath}' was not found.")
+        return []
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return []
+
+# Create a dummy CSV file for demonstration
+with open('sample_data.csv', 'w', newline='', encoding='utf-8') as f:
+    writer = csv.writer(f)
+    writer.writerow(['Name', 'Age', 'City'])
+    writer.writerow(['Alice', 30, 'New York'])
+    writer.writerow(['Bob', 24, 'London'])
+    writer.writerow(['Charlie', 35, 'Paris'])
+
+# Example usage:
+csv_data = process_csv('sample_data.csv')
+if csv_data:
+    print("\nFirst row of processed data:", csv_data[0])
+
+
+97. How do nested functions work and what are they used for?
+
+A nested function (or inner function) is a function defined inside another function.
+
+How they work:
+
+Scope: Nested functions have access to variables from their enclosing (outer) function's scope (LEGB rule - E for Enclosing). This is key to closures.
+Encapsulation: They can encapsulate logic that is only relevant to the outer function.
+Data Hiding: Variables in the outer function's scope are "hidden" from the global scope but accessible to the inner function.
+Closures (as seen in Q86): When the outer function returns the inner function, the inner function retains access to the outer function's variables, forming a closure.
+Use cases:
+
+Closures: To create functions with persistent state.
+Decorators: Decorators are typically implemented using nested functions.
+Helper functions: To break down complex logic within a larger function into smaller, more manageable units without polluting the global namespace.
+Example:
+
+Python
+
+def calculator(operation):
+    def add(x, y):
+        return x + y
+    def subtract(x, y):
+        return x - y
+    def multiply(x, y):
+        return x * y
+    
+    if operation == 'add':
+        return add
+    elif operation == 'subtract':
+        return subtract
+    elif operation == 'multiply':
+        return multiply
+    else:
+        return None
+
+# Get specific operation functions
+add_func = calculator('add')
+subtract_func = calculator('subtract')
+
+print(f"10 + 5 = {add_func(10, 5)}")       # Output: 10 + 5 = 15
+print(f"10 - 5 = {subtract_func(10, 5)}")   # Output: 10 - 5 = 5
+
+
+98. Create a CLI-based calculator using functions.
+
+Example:
+
+Python
+
+def add(x, y):
+    return x + y
+
+def subtract(x, y):
+    return x - y
+
+def multiply(x, y):
+    return x * y
+
+def divide(x, y):
+    if y == 0:
+        return "Error: Division by zero"
+    return x / y
+
+def calculator_cli():
+    print("Simple CLI Calculator")
+    print("Operations: +, -, *, /")
+    print("Type 'exit' to quit.")
+
+    while True:
+        try:
+            num1_str = input("Enter first number (or 'exit'): ")
+            if num1_str.lower() == 'exit':
+                break
+            num1 = float(num1_str)
+
+            operator = input("Enter operator (+, -, *, /): ")
+            if operator.lower() == 'exit':
+                break
+            if operator not in ['+', '-', '*', '/']:
+                print("Invalid operator. Please use +, -, *, or /")
+                continue
+
+            num2_str = input("Enter second number (or 'exit'): ")
+            if num2_str.lower() == 'exit':
+                break
+            num2 = float(num2_str)
+
+            result = None
+            if operator == '+':
+                result = add(num1, num2)
+            elif operator == '-':
+                result = subtract(num1, num2)
+            elif operator == '*':
+                result = multiply(num1, num2)
+            elif operator == '/':
+                result = divide(num1, num2)
+            
+            print(f"Result: {result}")
+
+        except ValueError:
+            print("Invalid number input. Please enter valid numbers.")
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+
+    print("Calculator closed.")
+
+# Uncomment to run:
+# calculator_cli()
+
+
+99. Write a function that accepts another function as a callback.
+
+A callback function is a function passed as an argument to another function, which is then invoked inside the outer function to complete some kind of routine or action.
+
+Example:
+
+Python
+
+def process_data_with_callback(data, callback_func):
+    """
+    Processes a list of data and applies a callback function to each item.
+    """
+    processed_results = []
+    print("Starting data processing...")
+    for item in data:
+        # Simulate some processing
+        processed_item = item * 2 
+        # Call the callback function with the processed item
+        callback_func(processed_item) 
+        processed_results.append(processed_item)
+    print("Finished data processing.")
+    return processed_results
+
+def print_status(item):
+    print(f"Status: Item {item} processed.")
+
+def log_item(item):
+    print(f"LOG: Processed item {item} successfully.")
+
+my_data = [1, 2, 3, 4]
+
+print("--- Using print_status as callback ---")
+results1 = process_data_with_callback(my_data, print_status)
+print(f"Final results 1: {results1}")
+
+print("\n--- Using log_item as callback ---")
+results2 = process_data_with_callback(my_data, log_item)
+print(f"Final results 2: {results2}")
+
+
+100. How do you implement a retry mechanism using a decorator?
+
+A retry mechanism automatically re-executes a function a certain number of times if it fails (e.g., raises an exception).
+
+Example:
+
+Python
+
+import time
+import random
+
+def retry(max_attempts=3, delay=1):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            attempts = 0
+            while attempts < max_attempts:
+                try:
+                    return func(*args, **kwargs) # Try to execute the function
+                except Exception as e:
+                    attempts += 1
+                    if attempts < max_attempts:
+                        print(f"Attempt {attempts}/{max_attempts} failed for {func.__name__}: {e}. Retrying in {delay} second(s)...")
+                        time.sleep(delay)
+                    else:
+                        print(f"Max attempts reached for {func.__name__}. Failing.")
+                        raise # Re-raise the last exception
+        return wrapper
+    return decorator
+
+@retry(max_attempts=4, delay=2)
+def unreliable_operation():
+    if random.random() < 0.75: # 75% chance of failure
+        raise ValueError("Simulated network error or external service issue")
+    print("Operation successful!")
+    return "Data fetched"
+
+print("--- Testing unreliable_operation ---")
+try:
+    result = unreliable_operation()
+    print(f"Final result: {result}")
+except ValueError as e:
+    print(f"Caught expected error: {e}")
+
+print("\n--- Testing another unreliable_operation (might succeed earlier) ---")
+try:
+    result = unreliable_operation()
+    print(f"Final result: {result}")
+except ValueError as e:
+    print(f"Caught expected error: {e}")
